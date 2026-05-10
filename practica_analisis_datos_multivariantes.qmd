@@ -1,0 +1,492 @@
+---
+title: 'Evaluación Análisis Multivariante'
+author: 'Miguel Cabestrero Martín'
+format:
+  html:
+    embed-resources: true
+    toc: true
+    toc-location: left
+    number-sections: true
+    theme: cosmo
+---
+
+
+```{r}
+library(data.table)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(corrplot)
+library(skimr)
+library(tibble)
+library(gt)
+library(broom)
+library(MASS)
+library(mgcv)
+library(car)
+library(agricolae)
+
+```
+
+
+```{r}
+# Carga de datos
+
+df <- fread('gym_members_exercise_tracking.csv')
+
+# Por problemas de compatibilidad con Positron, se usa la librería gt en lugar de formattable
+
+df %>% 
+  skim() %>% 
+  gt()
+```
+
+El dataset no presenta valores nulos, por lo que no es necesario realizar ningún tipo de imputación. 
+
+Excepto 2 variables, `Gender` y `Workout_Type` que son carácteres, el resto de variables son de tipo numérico. Se realiza una visualización más, en este caso de las primeras 5 líneas del dataset para tener mejor visión de su composición.
+
+```{r}
+head(df, 5)
+```
+
+# Regresión Lineal Múltiple 
+
+El objetivo es analizar los factores que influyen en las calorías quemadas durante  una sesión de entrenamiento.
+
+## Planteamiento modelo regresión lineal múltiple
+
+Se plantea un modelo de regresión lineal múltiple donde `Calories_Burned` es la variable dependiente y `Session_Duration_hours`,  `Avg_BPM` y `Fat_Percentage` son las variables explicativas.
+
+```{r}
+data_lm <- df %>%
+  dplyr::select(Calories_Burned, Session_Duration_hours, Avg_BPM, Fat_Percentage, Gender)
+
+mod1 <- lm(Calories_Burned ~ Session_Duration_hours + Avg_BPM + Fat_Percentage, data = data_lm)
+summary(mod1)
+```
+
+## Incorporación de variable cualitativa Gender
+
+La variable `Gender` es categórica, por lo que para añadirla al modelo es necesario convertirla en una variable dummy (0 o 1). Para realizar esta transformación utilizamos el método `as.factor`, creando una categoría de referencia que recibe el valor 0 y que se asigna a la primera cateogría por orden alfabético. La otra categoría es la de contraste, y es la que aparece explícitamente en el modelo. 
+
+```{r}
+df$Gender <- as.factor(df$Gender)
+
+mod1 <- lm(Calories_Burned ~ Session_Duration_hours + Avg_BPM + Fat_Percentage + Gender, data = data_lm)
+summary(mod1)
+```
+
+## Interpretación de los coeficientes
+
+Indicar que aunque se hable de calorías quemadas en la variable dependiente, en realidad se hace referencia a kilocalorías que equivalen a 1,000 calorías.
+
+El modelo muestra la relación de `Calories_Burned` con:
+
+* `Intercept`: Es el valor esperado de calorías quemadas cuando los coeficientes númericos tienen valor 0 y el género es femenino. Su valor estimado es -911.8112, que no tienen una interpretación física directa, actuando principalmente como una constante de ajuste para el modelo.
+* `Session_Duration_hours`: Es la variable que más influye en la quema de calorías, e indica que por cada hora de entrenamiento, se queman unas 714.96 kcal.
+* `Avg_BPM`: Representa las pulsaciones media durante la sesión de entrenamiento, y muestra que por cada pulsación adicional se queman 6.15 kcal más.
+* `Fat_Percentage`: Por cada 1% de grasa adicional que tenga la persona realizando ejercicio, su quema de kcal se reduce en 0.39.
+* `GenderMale`: Corresponde a la categoría de contraste de la variable dummy `Gender`, y puede tomar valores 0 o 1 lo que corresponde a mujer u hombre respectivamente. Indica que un hombre realizando exactamente el mismo ejercicio que una mujer quema en promedio 84.47 kcal más.
+
+Atendiendo al P-valor, todos los coeficientes son altamente significativos excepto `Fat_Percentage` con un valor de 0,347 superior al 0.05. 
+
+Respecto a la bondad del ajuste, el R cuadrado ajustado muestra que el modelo explica el 95.54% de la varianza de las calorías quemadas, lo que supone un ajuste excelente, aunque podría ser conveniente realizar alguna comprobación ya que es un valor muy alto. También es un valor prácticamente similar al R cuadrado (0.9556), lo que inidica que las varibles seleccionadas son relevantes. Esto está en línea con el estadístico F con un valor de 5211 y el p-valor de 2.2e-16.
+
+Una vez analizado el modelo con `Gender`como variable explicativa se hace una observación respecto a las diferencias con el modelo anterior donde no se incluía.
+
+En la comparativa se puede apreciar como `Fat_Percentage` pasa de un valor de -4.6179 a -0.3960, reduciéndose drásticamente su relevancia para explicar las calorías quemadas, así como su significancia, que antes era <2e-16. Esto se debe seguramente a que antes de la inclusión del género, las diferencias físicas entre hombres y mujeres respecto al promedio de grasa corporal, estaban intentado ser explicadas a través del porcentaje de grasa únicamente.
+
+También ha habido una mejora en el ajuste del modelo pasando de un R cuadrado ajustado de 0.9377 a 0.9554 y un ajuste del intercepto. Por otro lado, la duración del entrenamiento también aumento su importancia en las calorías consumidas.
+
+## Intervalos de confianza
+
+Validaremos la robustez del parámetro `Avg_BPM` calculando el intervalo de confianza para un α = 0.05.
+
+```{r}
+int_confianza_avg_BPM <- confint(mod1, "Avg_BPM", level = 0.95)
+# Extraer el límite inferior 
+limite_inferior <- int_confianza_avg_BPM[1, 1]
+# Extraer el límite superior 
+limite_superior <- int_confianza_avg_BPM[1, 2]
+# Extraer el coeficiente 
+avg_bpm_coef <- coef(mod1)["Avg_BPM"]
+
+# Se crea un dataframe para mostrar los resultados
+tabla_bpm <- data.frame(
+  coeficiente = avg_bpm_coef,
+  lower = limite_inferior,
+  upper = limite_superior
+)
+
+print(tabla_bpm)
+```
+
+El intervalo de confianza al 95% está entre 5.89 y 6.40. Al no encontrarse el 0 en ese rango, podemos decir que a ese nivel de confianza la frecuencia cardíaca es un predictor estadísticamente significativo de las calorías quemadas. Con un 95% de confianza, se puede afirmar que por cada latido por minuto adicional, el incremento promedio en las calorías quemadas se sitúa entre 5.89 y 6.40. Por último, este intervalo es estrecho, lo que indica que se trata de una estimación robusta.
+
+## Predicción puntual 
+
+Se realiza una predicción puntual de una serie de individuos utilizando el `mod1` creado en apartados anteriores.
+
+```{r}
+datos_predecir <- data.frame(
+    Session_Duration_hours = c(1.25, 1.30, 1.75, 0.45, 2.00),
+    Avg_BPM = c(125,  150,  133,  158,  139),
+    Fat_Percentage = c(12,   21,   28,   30,   19),
+    Gender = factor(c("Male", "Female", "Male", "Male", "Female"),
+    # Para asegurar que los niveles del dataset original se mantienen (female = 0, male = 1)
+    # se utiliza levels
+    levels = levels(df$Gender)))
+
+pred_dato <- data.frame(predict(mod1, datos_predecir, interval="prediction", type="response"))
+
+# se unen las dos tablas y se renombran las columnas de las predicciones
+prediccion <- bind_cols(datos_predecir, pred_dato) %>% rename(PRED = fit, PRED_LOWER = lwr, PRED_UPPER = upr) %>%
+  mutate(AMPLITUD = PRED_UPPER - PRED_LOWER) 
+remove(pred_dato)  # se eliminan los datos de la memoria
+
+prediccion %>% 
+  gt() %>% 
+  fmt_number(columns = where(is.numeric), decimals = 2)
+```
+
+El modelo cuantifica con precisión cómo las variables afectan a las calorías. Por ejemplo:
+
+* El individuo de la fila 5 (Mujer, 2 horas de ejercicio, 139 BPM y 21% grasa corporal) es quien más calorías quema (1,365.73 kcal), lo que sugiere que la duración es un factor crítico en este modelo.
+* En contraste, el individuo de la fila 4 (hombre, 0.45 horas de ejercicio, 158 BPM y 30% de grasa corporal) es quién menos calorías quema (454.54 kcal), cifra estrechamente relacionada con el tiempo menor dedicado al ejercicio, a pesar de que las BPM fueron mayores.
+
+La amplitud del intervalo es muy constante entre todas las predicciones, con un valor aproximado de 226. Esto es un indicador de homocedasticidad, lo que suigiere un modelo uniforme para diferentes registros.
+
+# Regresión robusta y modelos aditivos
+
+## Modelos de regresión robusta
+
+Se realiza un modelo de regresión robusta basado en el modelo del apartado anterior. El objetivo es mitigar el efecto de los posibles valores atípicos que, por su distancia respecto a la recta y su elevado leverage, podrían estar sesgando los coeficientes del modelo original. De este modo, obtenemos una estimación más fiable que no se ve arrastrada por observaciones extremas.
+
+Para realizar el ajuste se utilizarán 2 estimadores:
+
+* Huber que trata de forma normal a los datos con residuos pequeños, pero aplica un castigo lineal moderado a los valores atípicos para que no desplacen la recta de regresión.
+
+* Bisquare es más estricto ya que utiliza una función de peso ponderada, llegando a ignorar por completo a los valores extremadamente alejados para asegurar que la predicción solo se base en el patrón principal de los datos.
+
+```{r}
+# Recordar primero el error estándar del modelo original
+
+summary(mod1)
+```
+
+El error estándar del modelo original es 57.55
+
+
+```{r}
+# Estimador Huber
+mod_huber <- rlm(Calories_Burned ~  Session_Duration_hours + Avg_BPM + Fat_Percentage + Gender, data = data_lm)
+summary(mod_huber)
+```
+
+El error estándar para el modelo robusto de Huber es de 69.93
+
+```{r}
+# Estimador bisquare
+mod_bisquare <- rlm(Calories_Burned ~  Session_Duration_hours + Avg_BPM + Fat_Percentage + Gender, data = data_lm, psi = psi.bisquare)
+summary(mod_bisquare)
+```
+
+El error estándar para el estimador bisquare es 69.56.
+
+Las observaciones principales del análisis descriptivo son:
+
+* Los errores estándar de los modelos robustos son mayores que el modelo original (aproximadamente 69 frente a 57). Esto significa que el modelo original es sólido, no viéndose influenciado por valores extremos.
+
+* Los coeficientes entre los modelos se mantienen constantes con variaciones muy pequeñas, siendo el porcentaje de grasa poco significativo en todos los modelos.
+
+Se realiza a continuación un análisis gráfico de los 3 modelos, comparando los valores observados frente a los predichos.
+
+```{r}
+# Preparación de datos en dataframe
+df_juntos <- data.frame(
+  real     = data_lm$Calories_Burned,
+  mco      = mod1$fitted.values,
+  huber    = mod_huber$fitted.values,
+  bisquare = mod_bisquare$fitted.values
+)
+
+ggplot(df_juntos, aes(x = real)) +
+  # Puntos reales
+  geom_point(aes(y = real), color = "gray80", alpha = 0.4, size = 1.5) +
+  
+  # Línea de MCO
+  geom_smooth(aes(y = mco, color = "MCO"), 
+              method = "lm", formula = y ~ x, se = FALSE, linetype = "solid", linewidth = 1.2) +
+  
+  # Línea de Huber
+  geom_smooth(aes(y = huber, color = "Huber"), 
+              method = "lm", formula = y ~ x, se = FALSE, linetype = "dashed", linewidth = 1) +
+  
+  # Línea de Bisquare
+  geom_smooth(aes(y = bisquare, color = "Bisquare"), 
+              method = "lm", formula = y ~ x, se = FALSE, linetype = "dotted", linewidth = 1) +
+  
+  # Colores y Leyenda
+  scale_color_manual(values = c("MCO" = "black", 
+                                "Huber" = "#2980B9", 
+                                "Bisquare" = "#27AE60")) +
+  
+  # Etiquetas
+  labs(title = "Comparación de Pendientes: MCO vs Robustos",
+       x = "Valores Reales (Calorías)",
+       y = "Valores Ajustados (Predicciones)",
+       color = "Modelo") +
+  
+  theme_minimal() +
+  theme(legend.position = "right")
+```
+
+En el análisis gráfico se puede ver que los tres modelos representan una línea similar, estando prácticamente superpuestos. La pendiente que dibujan es muy similar a la diagonal de 45º que representa los valores reales, por lo que los 3 modelos hacen un buen trabajo predictivo y no se ven apenas desplazados por la presencia de valores extremos.
+
+Tras realizar los 2 análisis, el cuantitativo y el gráfico, ya que este último no muestra diferencias significativas entre los modelos y lo errores son menores en el modelo original, **se opta por el modelo de regresión original (MCO), que es el que presenta un error estándar menor**.
+
+## Modelo con splines
+
+Se propone un modelo con splines que predice las calorías quemadas en base a las variables utilizadas en los apartados anteriores. Para identificar que variables son susceptibles de presentar curvatura en su relación con la variable dependiente se calcula la matriz de correlación.
+
+```{r}
+# Solo para variables numéricas
+vars_num <- data_lm[, c('Calories_Burned', 'Session_Duration_hours', 'Avg_BPM', 'Fat_Percentage')]
+cor_matrix <- cor(vars_num)
+print(cor_matrix)
+```
+
+Los resultados muestran que la duración de la sesión tiene un coeficiente de correlación de casi 0.91, lo que indica que se trata de una relación altamente lineal. Las pulsaciones medias y el índice de grasa, presentan una correlación menor, de 0.33 y -0.597 respectivamente. Por lo tanto, se explorará su comportamiento tras aplicar la función de suavizado.
+
+Para ello, se utiliza la función `gam` al tratarse de varias variables. Esta función realiza una regresión por splines utilizando una base de splines cúbicos penalizados.
+
+```{r}
+# Session_Duration_hours se deja lineal según el análisis de correlación
+mod_spline_refinado <- gam(Calories_Burned ~ Session_Duration_hours + 
+                           s(Avg_BPM) + 
+                           s(Fat_Percentage) + 
+                           Gender, 
+                           data = data_lm)
+```
+
+```{r}
+# Se comparan los valores de R-cuadrado ajustado
+r2_lineal <- summary(mod1)$adj.r.squared
+r2_gam <- summary(mod_spline_refinado)$r.sq
+
+cat('R-cuadrado Ajustado Modelo Lineal:', r2_lineal, '\n')
+cat('R-cuadrado Ajustado Modelo GAM:', r2_gam, '\n')
+
+# Se comparan los modelos estadísticamente
+anova(mod1, mod_spline_refinado, test = 'F')
+```
+
+La variabilidad explicada por el modelo original y el nuevo modelo GAM apenas ha cambiado con un aumento de 0.955 a 0.957. Sin embargo, el P-valor indica que esta diferencia, a pesar de ser pequeña, es significativa, por lo que se se confirma que la flexibilidad aportada por los splines en `Avg_BPM` y `Fat_Percentage` mejora el modelo de forma significativa. **Se opta por tanto por el modelo GAM**.
+
+# Modelo Lineal Generalizado 
+
+Se define una nueva variable binaria `High_Intensity`, que toma valor 1 si `Avg_BPM` es superior a 140 y 0 en caso contrario.
+
+```{r}
+df$High_Intensity <- ifelse(df$Avg_BPM > 140, 1, 0)
+
+df$High_Intensity <- as.factor(df$High_Intensity)
+```
+
+Para garantizar el correcto funcionamiento del modelo, también se transforman a factor las variables del tipo de ejercicio y el nivel de experiencia, ya que la primera es texto, mientras que la segunda es entero.
+
+```{r}
+df$Workout_Type <- as.factor(df$Workout_Type)
+df$Experience_Level <- as.factor(df$Experience_Level)
+```
+
+Antes de formular el modelo se discretizan las variables numéricas como se pide en el enunciado.
+
+```{r}
+min_age <- min(df$Age)
+print(min_age)
+
+max_age <- max(df$Age)
+print(max_age)
+
+max_weight <- max(df$Weight_kg)
+print(max_weight)
+```
+
+```{r}
+# Discretización de la Edad
+df$Age_Cat <- cut(as.numeric(df$Age), 
+                       breaks = c(18, 30, 45, 60), 
+                       labels = c("Joven", "Adulto_Joven", "Adulto"),
+                       include.lowest = TRUE)
+
+# Discretización del Peso
+df$Weight_Cat <- cut(as.numeric(df$Weight_kg), 
+                          breaks = c(0, 65, 85, 250), 
+                          labels = c("Ligero", "Medio", "Pesado"),
+                          include.lowest = TRUE)
+```
+
+Se formula un modelo lineal generalizado binomial para explicar `High_Intensity` en función de `Age`, `Gender`, `Weight_kg`, `Experiencie_Level`, `Workout_Type`. Pero antes se realiza una comprobación de las variables que se usarán.
+
+```{r}
+df_MLG <- df %>%
+  dplyr::select(High_Intensity, Age_Cat, Weight_Cat, Gender, Experience_Level, Workout_Type)
+
+skim(df_MLG)
+```
+
+El **modelo elegido es Logit**, debido a que permite una mejor interpretabilidad mediante Odds Ratios. A diferencia del modelo Probit, que se basa en la distribución normal y ofrece coeficientes difíciles de interpretar, el modelo Logit permite transformar los coeficientes en Odds Ratios (razones de probabilidad).
+
+
+```{r}
+mod_logit <- glm(High_Intensity ~ Age_Cat + Gender + Weight_Cat + Experience_Level + Workout_Type, 
+                    data = df_MLG, 
+                    family = binomial(link = "logit"))
+
+# odds ratio
+summary(mod_logit)
+```
+
+Un primer análisis muestra que ninguna de las variables es significativa atendiendo al P-valor. 
+
+## Interpretación de los coeficientes del modelo
+
+El intercepto del modelo representa a una mujer joven (18-30 años), con un peso ligero (0-65 kg), con nivel principiante y que entrena cardio. Para interpretar el resto de coeficientes, es más intuitivo utilizar los odds ratios (OR). Su interpretación es la siguiente:
+
+* OR = 1 indica que no hay efecto.
+* OR > 1 indica que el efecto es positivo, aumentando la probabilidad de que la variable `High_Intensity` sea 1, es decir, que sea intensa.
+* OR < 1 indica un efecto negativo, es decir, la probabilidad de una alta intensidad será menor.
+
+```{r}
+odds_ratios <- exp(coef(mod_logit))
+
+tabla_or <- data.frame(
+  Variable = names(odds_ratios),
+  Odds_Ratio = round(odds_ratios, 3),
+  row.names = NULL
+)
+print(tabla_or)
+```
+
+Al observar la tabla, se pueden extraer tendencias sobre quién tiene más o menos probabilidades de superar los 140 BPM en comparación con el perfil base (Mujer, Joven, Peso Ligero, Principiante y Cardio):
+
+* Edad: A mayor edad, mayor es la probabilidad de realizar ejercicio de alta intensidad.  
+
+* Género: Los hombres presentan una probabilidad ligeramente inferior a la de las mujeres para alcanzar este umbral de 140 BPM.
+
+* Peso: el peso no muestra una relación lineal. Mientras que las personas pesadas se comportan igual que las ligeras (OR 1.00), el grupo de peso medio presenta la menor probabilidad de alta intensidad.
+
+* Experiencia: La experiencia apenas varia la probabilidad, aunque las personas con experiencia media son las más probables de realizar un ejercicio de alta intensidad.
+
+* Tipo de ejercicio: El cardio es el ejercicio que más probabilidades tiene de resultar en un ejercicio de alta intensidad y HIIT el que menos por un pequeño margen.
+
+## Evaluación del ajuste del modelo
+
+```{r}
+R2_McFadden <- 1 - (mod_logit$deviance / mod_logit$null.deviance)
+print(R2_McFadden)
+
+# Test de significación global del modelo
+p_valor_global <- pchisq(mod_logit$null.deviance - mod_logit$deviance, 
+                         df = mod_logit$df.null - mod_logit$df.residual, 
+                         lower.tail = FALSE)
+print(p_valor_global)
+```
+
+Para evaluar el ajuste del modelo se utiliza el pseudo R cuadrado de McFadden. Este arroja 0.00258, muy por debajo de los niveles aceptables [0,2, 0,4] lo que indica que el modelo explica un porcentaje muy bajo de la variabilidad de la intensidad, apenas un 0.3%. Esto guarda coherencia con el ajuste global del modelo mediante un test de razón de verosimilitud, obteniendo un p-valor de 0.968. Dado que este valor es muy superior al umbral de significación (0.05), no existe evidencia estadística de que el modelo con predictores sea superior al modelo nulo.
+
+# Diseño de experimentos
+
+Se desea analizar cómo influyen el género y el tipo de entrenamiento en las calorías quemadas (Calories_Burned) durante una sesión de entrenamiento.
+
+Para ello, se plantea un modelo ANOVA bifactorial con interacción para explicar `Calories_Burned`. Considere `Gender` y `Experience_Level` como factores fijos. Lo primero es seleccionar las variables usadas en el modelo.
+
+```{r}
+df_aov <- df %>%
+  dplyr::select(Calories_Burned, Gender, Experience_Level)
+
+```
+
+```{r}
+mod_anova <- aov(Calories_Burned ~ Gender * Experience_Level, data = df_aov)
+summary(mod_anova)
+```
+
+## Análisis de hipótesis
+
+Antes de proceder a la interpretación de los resultados del ANOVA, es imperativo validar los tres supuestos fundamentales que garantizan la fiabilidad de las inferencias estadísticas: independencia, normalidad y homocedasticidad. La independencia está relacionado con el diseño de la recogida de datos, por lo que asumiremos que se cumple.
+
+
+### Normalidad de los residuos
+
+Para analizar la normalidad de los residuos se utiliza el test de Shapiro.
+
+```{r}
+shapiro.test(residuals(mod_anova))
+
+```
+
+El p-valor es muy inferior a 0.05 por lo que se rechaza la hipótesis nula de normalidad de los errores.
+
+### Homocedasticidad de las varianzas
+
+La homocedasticidad se contrasta mediante el test de Flinger-Killeen por su mayor robusted cuando no hay normalidad ya que se basa en la mediana.
+
+```{r}
+fligner.test(Calories_Burned ~ interaction(Gender, Experience_Level), data = df_aov)
+```
+
+El P-valor es menor que 0.05 por lo que no se cumple homocedasticidad, lo que significa que existen diferencias significativas en las varianzas de los grupos. 
+
+Ni la normalidad ni homocedasticidad se cumplen, sin embargo, dado el gran tamaño de la muestra el ANOVA se considera un procedimiento robusto. Según autores citados en el material (Stevens, 1986), el impacto de estas desviaciones es mínimo si el diseño es equilibrado o la razón entre grupos no supera el valor de 2. Aunque debe tomarse los valores con prudencia ya que entre los grupos de nivel de experiencia 1 y 3, la diferencia en número de registros es ligeramente superior a este 2. 
+
+Una posible estrategia para conseguir cumplir con la normalidad y homocedasticidad es hacer una trasnformación Box-Cox, pero al no solicitarse en el enunciado, el análisis se continuará con el modelo original.
+
+## Comprobación de diferencias significativas entre géneros
+
+El P-valor de la variable género en la tabla ANOVA es 1.2e-11, que al ser mucho menor que 0.05 significa que se rechaza la hipótesis nula de igualdad de medias entre los géneros y que por tanto las calorías consumidas entre hombres y mujeres es significativamente diferente.
+
+## Interacción nivel de experiencia, geénero y calorías quemadas
+
+La tabla ANOVA indica que el género y nivel de experiencia son significativos de manera inidividual. Sin emabrgo, la interacción entre ambos es significtiva solo al 10% (p-valor 0.0534).
+
+Para indagar en la interacción entre ambas variables ser realizará un análisis gráfico.
+
+```{r}
+interaction.plot(x.factor = df_aov$Experience_Level, 
+                 trace.factor = df_aov$Gender,      
+                 response = df_aov$Calories_Burned,
+                 fun = mean,                        
+                 type = "b",                      
+                 col = c("red", "blue"),           
+                 pch = c(19, 17),                   
+                 fixed = TRUE,                     
+                 main = "Interacción Género x Experiencia",
+                 xlab = "Nivel de Experiencia",
+                 ylab = "Media de Calorías Quemadas")
+```
+
+El resultado parece indicar que las diferencias entre géneros son relativamente estables entre el nivel de 1 y 2 de experiencia, pero estas se acentúan claramente en el nivel de máxima experiencia. En este nivel, los hombres queman más calorías que las muejeres en comparación al resto de niveles.
+
+## Comparaciones post-hoc
+
+Para efectuar comparaciones de las medias entre las diferentes combinaciones se utiliza Scheffe, que es el procedimiento preferible en casos de no balanceo como el que existe entre los niveles de experiencia, ya que los registros del nivel 1 son 406 mientras que los del nivel 3 son 191.
+
+```{r}
+# Se crea la variable de interacción para que sea un único factor
+df_aov$inter_celda <- interaction(df_aov$Gender, df_aov$Experience_Level)
+
+#  Se ajusta el modelo usando ese nuevo factor
+# (Importante: scheffe.test necesita que el modelo se base en el factor a contrastar)
+mod_auxiliar <- aov(Calories_Burned ~ inter_celda, data = df_aov)
+
+# Se ejecuta el test correctamente
+res_scheffe <- agricolae::scheffe.test(mod_auxiliar, 'inter_celda', group = TRUE, console = FALSE)
+
+# Se muestran los resultados
+print(res_scheffe$groups)
+```
+
+El test de Scheffe confirma que casi todas las combinaciones de género y experiencia presentan medias significativamente diferentes entre sí excepto los géneros con nivel de experiencia 1. Por lo que una vez que el nivel de experienica pasa de uno, el género es un factor significativo respecto a la media de calorías consumidas.
+
