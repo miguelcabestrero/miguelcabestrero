@@ -1,0 +1,1037 @@
+---
+title: 'Evaluación Módulo 2'
+author: 'Miguel Cabestrero Martín'
+format:
+  html:
+    embed-resources: true
+    toc: true
+    toc-location: left
+    number-sections: true
+    theme: cosmo
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+# Cargado de librerías y datos
+
+```{r}
+suppressPackageStartupMessages({
+  library(tidytable)   # Equivalente dplyr para data.table
+  library(data.table)  # Procesado (rápido) de datos.
+  library(ggplot2)     # Librería gráfica.
+  library(magrittr)    # Proporciona el uso de los "pipes".
+  library(gt)          # Funciona mejor con positron que formattable
+  library(corrplot)    # Representa gráficamente correlaciones entre variables
+  library(readr)       # Importar archivos rápidamente
+  library(kableExtra)  # Formatear tablas
+  library(skimr)
+  library(mice)         # Para hacer imputación multivariable
+  library(lubridate)
+   library(tidytext)
+}) 
+```
+
+```{r}
+# Cargado de datos con clase data.table
+df_crimen <- fread('Crime_Data_from_2020_to_2024_20260308.csv') %>%
+  as.data.table()
+```
+
+# Exploración del dataset
+
+El objetivo de este apartado es estudiar la estrucutura y contenido del dataset:
+
+* Tipo de variables, su significado y necesidades de transformación.
+* Posibles relaciones entre variables.
+* Calidad de los datos, respecto a valores nulos.
+
+Estructura y contenido del dataset
+
+Se realiza una primera exploración de la estructura mediante el comando `head`.
+
+```{r}
+head(df_crimen, 5)
+```
+Se analiza la estructura en más profundidad mediante el comando `skimr`
+
+
+```{r}
+skim(df_crimen)
+```
+
+Un primer análisis descriptivo usando skim es que hay más de 1 millón de resgitros y un total de 28 variables, de las cuales 15 son carácteres y 13 numéricas. El resumen de cada una de estas variables es para las tipo Char:
+
+* Date Rptd: Char. Debe convertirse a fecha. Es la fecha en al que se reportó el crimen. Seguramente se discretice por años para facilitar el análisis ya que tiene 1870 registros (fechas) únicas.
+* Date OCC: Char. Debe convertirse a fecha. Es la fecha del incidente. Puede ser intersante ver la diferencia con la fecha de reporte.
+* Area Name: Char. Debe ser factor. Crucial para el análisis geográfico.
+* Crm Cd Desc: Char. Debe convertirse en factor. Descripción del delito.
+* Mocodes: Char. Detalle de como se cometió el crimen (modus opearandi). hay más de 300.000 resigstros únicos lo que dificulta enormemente su uso e interpretación. demás presenta más de 100k valores vacíos.
+* Vict Sex: Char. Debe convertirse a factor. Es el sexo de la víctima. Presenta más de 100k valores vacíos y 6 registros únicos, cuando a priori deberían ser 2 (M, F) o máximo 3 (M, F, n/a).
+* Vict Descent: Char. Dbería ser factor. Grupo étnico. Presenta más de 100k valores vacíos y 21 registros únicos.
+* Premis Desc: Char. Describe el tipo de lugar o establecimiento donde ocurrió el crimen. Hay 307 valores diferentes.
+* Weapon Desc: Char. Arma utilizada. tiene más de 600k valores vacíos, lo que puede significar que no en todos los delitos se usan armas. Son 80 registros únicos.
+* Status: Char. Debería ser factor. Estado administrativo del reporte. Solo 7 estados diferentes (1 parece ser nulo).
+* Status Desc: Char. El código del status. Parece que la correlacion será perfecta entre estas dos variables y que se tendrá que descartar una. No presenta valores vacíos, por lo que puede servir para conocer el valor del registro nulo en status.
+* Cross Street: Char. Que calles cruzan donde se cometio el crimen. Demasiados registros únicos (10k).
+* LAT y LON: Char. Ubicación exacta del crimen. Seguramente sea más simple y eficiente usar el Area en lugar de estas dos variables.
+
+Para las tipo numérico:
+
+* DR_NO: Entero. Identificador único de cada registro.
+* TIME OCC: Entero. Hora en la que ocurrió el suceso en formato militar. La 00:00 es la hora de referencia.
+* AREA: Entero. Código que identifica las áreas. Es redundante con el 'AREA NAME'.
+* Rpt Dist No: Entera. Es el código del sub-distrito o demarcación policial específica dentro de una AREA. Es un nivel de detalle geográfico mayor.
+* Part 1-2: Entero. Clasificación del crimen según el FBI: 'Part 1' para delitos graves y 'Part 2' para el resto. Seguramente sea interesante categorizarlo.
+* Crm Cd: Entero. Código que identifica el tipo de crimen. Es la clave para la columna 'Crm Cd Desc'.
+* Vict Age: Entero. Edad de la víctima. Muestra errores (valores de -4) que habrá que limpiar.
+* Premis Cd: Entero. Código del tipo de lugar del incidente. Redundante con 'Premis Desc'.
+* Weapon Used Cd: Flotante/Real. Código del arma utilizada. Tiene muchos valores faltantes (complete_rate de 0.32), indicando que no siempre hay armas implicadas. redundante con 'Weapon desc'. 
+* Crm Cd 1: Entero. Código del delito principal reportado.
+* Crm Cd 2, Crm Cd 3, Crm Cd 4: Flotante/Real. Códigos de delitos adicionales en el mismo suceso. Tienen una presencia casi nula en el dataset.
+
+## Calidad de los datos
+
+### Completitud: análisis de faltantes, ceros y valores ausentes
+
+```{r}
+resumen_NA_ceros_vacios <- df_crimen %>%
+  summarise(across(everything(), 
+                   list(NAs = ~sum(is.na(.)),
+                        pct_NAs = ~round(mean(is.na(.)) * 100, 2),
+                        ceros = ~sum(. == 0, na.rm = TRUE),
+                        pct_ceros = ~round(mean(. == 0, na.rm = TRUE) * 100, 2),
+                        vacios = ~sum(. == "", na.rm = TRUE),
+                        pct_vacios = ~round(mean(. == "", na.rm = TRUE) * 100, 2)),
+                   .names = "{.col}___{.fn}")) %>%
+  pivot_longer(everything(),
+               names_to = c("variable", "metrica"),
+               names_sep = "___",
+               values_to = "valor") %>%
+  pivot_wider(names_from = metrica, values_from = valor) %>%
+  filter(pct_NAs > 5 | pct_ceros > 5 | pct_vacios > 5) %>%
+  arrange(desc(pct_NAs), desc(pct_ceros))
+
+resumen_NA_ceros_vacios %>% 
+  gt() %>% 
+  tab_header(title = 'Calidad de los datos') %>% 
+  opt_stylize(style = 6, color = 'gray')
+```
+
+**Análisis de valores faltantes (NAs):**
+
+* La tabla creada muestra que los crímenes accesorios son los que prsentan más NAs. Estas variables convendrá eliminarlas. 
+
+* Más de la mitad de los crímenes reportados no tienen registrada un arma. En este caso, esto puede ser valioso saberlo, ya que tendrá relación con el tipo de crímen y su violencia.
+
+**Análisis de ceros:**
+
+* La edad de la víctima tiene más de un 25% de registros con valor 0. Es improbable tal volumen de víctimas lactantes, se identifica como un error de registro o valor por defecto. Se mantendrá la variable pero filtrando o imputando estos valores en la fase de limpieza.
+
+**Análisis de vacios:**
+
+* Variables geográficas y de conducta: Cross Street y Mocodes presentan un alto volumen de vacíos y no se consideran críticas para los objetivos de este análisis, por lo que se descartan.
+
+* La etnia de la víctima y su sexo si que puede ser un indicadores relevantes para el perfilado, por lo que a pesar de presentar aproximadamente un 15% de valores vacíos se mantienen.
+
+* Weapon Desc es reduntante con su contraparte numérica.
+
+### Duplicados
+
+Se analiza si existen duplicados para los `DR_NO` que son los ID de cada reporte. Para ellos es importante tener en cuenta que:
+
+* Cada `DR_NO` debe ser diferente.
+* Los crímenes accesorios: `Crm Cd 2` ... puede que tengan su propio registro, duplicando la víctima en las estadísticas.
+* Posibilidad de regsitros del mismo delito bajo diferente `DR_NO`. Para ello, se buscarán delitos ocurridos del mismo tipo `Crm Cd`, `Area`, `Time OCC`, `Date OCC`,  que es muy imporbable que se traten de crímenes diferentes.
+
+
+```{r}
+# Comprobación de ID único (DR_NO)
+total_duplicados_id <- sum(duplicated(df_crimen$DR_NO))
+
+# Comprobación de Crímenes Accesorios (Duplicidad de Víctima)
+# Buscamos si hay registros con el mismo DR_NO pero que varíen en Crm Cd 2, 3 o 4
+# (Esto es poco probable si el dataset está bien estructurado, pero hay que verificarlo)
+duplicados_victima <- df_crimen[, .N, by = DR_NO][N > 1]
+
+# Comprobación de Eventos Idénticos con distinto ID
+# Buscamos registros que coincidan en los campos clave del evento
+columnas_evento <- c('DATE OCC', 'TIME OCC', 'AREA', 'Crm Cd')
+duplicados_evento <- df_crimen[duplicated(df_crimen, by = columnas_evento)]
+
+# --- Mostrar Resultados ---
+cat('--- RESULTADOS DEL ANÁLISIS DE DUPLICADOS ---\n')
+cat('1. Registros con ID (DR_NO) repetido:', total_duplicados_id, '\n')
+cat('2. Casos de posible duplicidad de víctima (mismo DR_NO):', nrow(duplicados_victima), '\n')
+cat('3. Eventos idénticos bajo distinto ID (Mismo día, hora, área y delito):', nrow(duplicados_evento), '\n')
+```
+
+Se confirma la inexistencia de duplicados técnicos en la variable DR_NO, lo que asegura la integridad de los identificadores.
+
+No obstante, se detectan 40379 eventos sospechosos de duplicidad basándose en los supuestos de misma área, fecha, hora y tipo de crímen. Se realiza una comprobación más exhaustiva comparando LAT Y LON.
+
+```{r}
+columnas_evento <- c('DATE OCC', 'TIME OCC', 'LAT', 'LON', 'Crm Cd')
+duplicados_evento <- df_crimen[duplicated(df_crimen, by = columnas_evento)]
+cat('3. Eventos idénticos bajo distinto ID (Mismo día, hora, coordenadas y delito):', nrow(duplicados_evento), '\n')
+```
+
+La nueva comprobación usando LAT y LOT en lugar del área señala 25133 registros duplicados, que será el dato que trataremos en el siguiente apartado.
+
+### Identificar registros 'extraños'
+
+El objetivo es analizar si variables como el tipo de crimen, que es relevante pero tiene 140 valores únicos, puede simplificarse, agrupando crímenes muy poco frecuentes en una 'categoría especial'. En definitiva, si se pueden simplificar los registros facilitando el análisis.
+
+
+```{r}
+# Analizar la frecuencia de los tipos de crímenes
+frecuencia_crimen <- df_crimen[, .N, by = `Crm Cd Desc`][order(-N)]
+
+# Calcular porcentaje y porcentaje acumulado
+frecuencia_crimen[, Porcentaje := (N / sum(N)) * 100]
+frecuencia_crimen[, Porcentaje_Acumulado := cumsum(Porcentaje)]
+
+# Ver los 15 crímenes más frecuentes y cuántos quedan en la 'cola'
+top_20 <- head(frecuencia_crimen, 20)
+otros <- frecuencia_crimen[21:.N]
+
+# Mostrar resumen de la 'cola'
+cat('--- ANÁLISIS DE CATEGORÍAS --- \n')
+cat('Total de categorías únicas:', nrow(frecuencia_crimen), '\n')
+cat('Categorías fuera del Top 20:', nrow(otros), '\n')
+cat('Peso total de esas categorías minoritarias:', round(sum(otros$Porcentaje), 2), '%\n')
+
+knitr::kable(top_20, 
+             caption = 'Top 15 Crímenes más frecuentes',
+             digits = 2)
+```
+
+Se puede ver que los 20 crímenes suponen cerca más del 86% de los registros. El resto de crímenes se agruparán en dos cateogorías: Resto_grave (Part 1-2 = 1) y Resto_leve (Part 1-2 = 0) utilizando la clasificación del FBI.
+
+### Conclusiones finales para el tipificado y tratamiento de datos:
+
+Las acciones que se llevarán en el siguiente apartado se pueden resumir en estos grupos:
+
+**Transformación de variables**
+
+* Tipado Temporal: Convertir Date Rptd y DATE OCC a clase Date de forma permanente usando as.Date.
+* Crear Crm_Desc_Simpl: Mantener los 20 tipos principales (el 86.34%) y agrupar los otros 120 en 'OTROS CRIMENES' según gravedad.
+* Crear Weapon_Desc_Simpl: Agrupar las 70+ descripciones de armas en el Top 10 y 'OTRAS ARMAS'.
+* Factorización: Convertir Vict Sex y Vict Descent en factores.
+* Categorizar el estado administrativo del crimen y el tipo de crimen (part 1-2)
+* Convertir en numérica las LON y LAT y la hora.
+
+**Eliminación de registros**
+
+* Eliminar los 25k registros de DR_NO que están duplicados.
+* Eliminar registros imposibles como las edades negativas.
+
+**Eliminación de variables**
+
+* Eliminar Crm Cd 3, Crm Cd 4, Mocodes y Cross Street, por número de NAs en el caso de las primeras y por complejidad que conlleva su análisis debido al gran número de registros únicos en el caso de las dos últimas.
+* Eliminar variables redundantes, aquellas númericas con contraparte Char, ya que estas últimas son más fáciles de identificar una vez factorizadas.
+
+**Imputación de variables**
+
+* Crear categorías para los registros vacíos del sexo y etnia o imputarlos y asi no eliminarlos del análisis, ya que pueden ser relevante que no aparezca ningún valor.
+* Edades 0, decidir si se intepretan como desconocidos o se imputan.
+
+**Creación de nuevas variables**
+
+* Componenetes temporales para indagar si existen más crímenes a ciertas horas o épocas del año.
+
+
+## Tipado de variables
+
+En este apartado se realiza el tipado comentado en el apartado anterior. Para prevenir posibles errores, se realizan estos cambios en un nuevo data.table.
+
+
+```{r}
+df_crimen_tipado <- df_crimen
+```
+
+### Transformación de variables
+
+Se empieza por la transformación de las fechas. Las fechas tienen una hora (12:00:00 AM) que es la misma para todas. Esta no corresponde con la de TIME OCC por lo que se elimina.
+
+```{r}
+# Se extraen los primeros 10 caracteres (MM/DD/YYYY) antes de convertir (quitar hora genérica)
+# 'ymd' reconoce automáticamente 'Apr' como el mes 04
+df_crimen_tipado[, `Date Rptd` := ymd(substr(`Date Rptd`, 1, 11))]
+df_crimen_tipado[, `DATE OCC` := ymd(substr(`DATE OCC`, 1, 11))]
+head(df_crimen_tipado, 5)
+```
+
+Conversión de la hora a numérica.
+
+```{r}
+df_crimen_tipado[, `TIME OCC` := as.numeric(`TIME OCC`)]
+```
+
+Se crea la variable Crm_Desc_Simpl con los top 20 crímenes y el resto en 2 categorías según gravedad.
+
+```{r}
+top_20_crm <- df_crimen_tipado[, .N, by = `Crm Cd Desc`][order(-N)][1:20, `Crm Cd Desc`]
+
+df_crimen_tipado[, Crm_Desc_Simpl := as.character(`Crm Cd Desc`)]
+df_crimen_tipado[!(Crm_Desc_Simpl %in% top_20_crm), Crm_Desc_Simpl := 
+            ifelse(`Part 1-2` == 1, 'OTROS - GRAVES (FBI Part I)', 'OTROS - LEVES (FBI Part II)')]
+
+df_crimen_tipado[, Crm_Desc_Simpl := as.factor(Crm_Desc_Simpl)]
+```
+
+Se crea una categoría para cuando no existe arma o es desconocida en la variable Weapon Desc, y se aplica una categorización por top 10 armas, resto de armas y sin arma (desconocida).
+
+```{r}
+df_crimen_tipado[is.na(`Weapon Desc`) | `Weapon Desc` == '', `Weapon Desc` := 'SIN ARMA/DESCONOCIDO']
+
+top_10_weap <- df_crimen_tipado[, .N, by = `Weapon Desc`][order(-N)][1:10, `Weapon Desc`]
+
+df_crimen_tipado[, `Weapon Desc` := ifelse(`Weapon Desc` %in% top_10_weap, 
+                                                `Weapon Desc`, 'OTRAS ARMAS')]
+
+df_crimen_tipado[, `Weapon Desc` := as.factor(`Weapon Desc`)]
+```
+
+Categorización del sexo y etnia.
+
+```{r}
+# Unificamos Sexo a 3 categorías limpias
+df_crimen_tipado[, `Vict Sex` := ifelse(`Vict Sex` %in% c('M', 'F'), `Vict Sex`, 'Unknown/Other')]
+df_crimen_tipado[, `Vict Sex` := as.factor(`Vict Sex`)]
+
+# Unificamos Etnia (NAs a 'Unknown')
+df_crimen_tipado[is.na(`Vict Descent`) | `Vict Descent` == '', `Vict Descent` := 'Unknown']
+df_crimen_tipado[, `Vict Descent` := as.factor(`Vict Descent`)]
+```
+
+Categorización del estado administrativo de la investigación del crimen.
+
+```{r}
+# Primero, si hay algún Status Desc vacío, lo marcamos como 'Unknown'
+df_crimen_tipado[is.na(`Status Desc`) | `Status Desc` == '', `Status Desc` := 'Unknown']
+# Lo convertimos a factor 
+df_crimen_tipado[, `Status Desc` := as.factor(`Status Desc`)]
+```
+
+Categorización del área.
+
+```{r}
+# Primero, si hay algún Status Desc vacío, lo marcamos como 'Unknown'
+df_crimen_tipado[is.na(`AREA NAME`) | `AREA NAME` == '', `AREA NAME` := 'Unknown']
+# Lo convertimos a factor 
+df_crimen_tipado[, `AREA NAME` := as.factor(`AREA NAME`)]
+```
+
+Categorización crímenes FBI
+
+```{r}
+# Primero, si hay algún Status Desc vacío, lo marcamos como 'Unknown'
+df_crimen_tipado[is.na(`Part 1-2`) | `Part 1-2` == '', `Part 1-2` := 'Unknown']
+# Lo convertimos a factor 
+df_crimen_tipado[, `Part 1-2` := as.factor(`Part 1-2`)]
+```
+
+Convertir LAT y LOT en números.
+
+```{r}
+# Usamos gsub para cambiar ',' por '.' antes de pasar a número
+df_crimen_tipado[, LAT := as.numeric(gsub(',', '.', LAT))]
+df_crimen_tipado[, LON := as.numeric(gsub(',', '.', LON))]
+
+df_crimen_tipado[LAT == 0, LAT := NA]
+df_crimen_tipado[LON == 0, LON := NA]
+
+# Comprobación
+summary(df_crimen_tipado[, .(LAT, LON)])
+```
+
+### Eliminación de registros
+
+Se comienza eliminando los registros donde estas variables sean similares: `Crm Cd`, `LAT`, `LOT`, `TIME OCC`, `DATE OCC`.
+
+```{r}
+# Se cuentan registros antes de la limpieza
+n_inicio <- nrow(df_crimen_tipado)
+
+# Eliminación de duplicados
+# Se mantiene la primera ocurrencia de cada combinación única de estos 4 campos
+df_crimen_tipado <- unique(df_crimen_tipado, by = c('Crm Cd', 'LON', 'LAT', 'TIME OCC', 'DATE OCC'))
+
+# Cálculo de registros eliminados
+n_final <- nrow(df_crimen_tipado)
+cat('Se han eliminado', n_inicio - n_final, 'registros duplicados')
+```
+
+Eliminación de registros con edades negativas.
+
+```{r}
+# Borrar las filas donde la edad sea negativa
+df_crimen_tipado <- df_crimen_tipado[!(`Vict Age` < 0)]
+
+# Comprobación final
+summary(df_crimen_tipado$`Vict Age`)
+```
+
+### Eliminación de variables
+
+Se elimina varias columnas numéricas que o bien son redundantes, presentan gran número de NAs o resultan de poca utilidad para el análisis posterior.
+
+
+```{r}
+# Definición de las columnas a eliminar por ruido o NAs
+columnas_ruido <- c('AREA', 'LOCATION', 'Mocodes','Premis Cd', 'Weapon Used Cd', 'Crm Cd 1', 'Crm Cd 2', 'Crm Cd 3', 'Crm Cd 4', 'DR_NO', 'Rpt Dist No', 'Cross Street')
+
+# Se eliminan asignándoles NULL 
+df_crimen_tipado[, (columnas_ruido) := NULL]
+```
+
+### Imputación de variables
+
+Se investigan que delitos se comenten con inidividuos con edad = 0 para explorar si es un error o un valor que se asgina a ciertas categorias por defecto.
+```{r}
+#| label: analisis-ceros-nombre-correcto
+
+# Usamos el nombre exacto de tu variable: `Crm Cd Desc`
+delitos_sin_edad <- df_crimen_tipado[`Vict Age` == 0, 
+                                    .N, 
+                                    by = .(`Delito_Original` = `Crm Cd Desc`)]
+
+# Ordenamos y mostramos el Top 10
+delitos_sin_edad <- delitos_sin_edad[order(-N)]
+print(head(delitos_sin_edad, 10))
+```
+
+Los delitos con edades 0 corresponden a crímenes sobre la propiedad por lo que se descarta imputar estos valores al tratarse seguramente de un valor por defecto que se registra a este tipo de sucesos.
+
+
+# Análisis del dataset: preguntas y exploraciones clave
+
+Para explorar los datos más alla de un análisis descriptivo y poder extraer conclusiones se realizan una serie de preguntas enmcarcadas en diferentes enfoques. Para dar respuesta a estas preguntas se utilizarán métodos numéricios y gráficos.
+
+Antes de continuar, se explorará posibles correlaciones entre variables numércias mediante la matriz de correlaciones.
+
+```{r}
+skim(df_crimen_tipado)
+
+```
+
+
+```{r}
+ # Seleccionamos solo columnas numéricas que NO tengan NAs
+vars_numericas <- df_crimen_tipado[, .SD, .SDcols = is.numeric]
+
+# Eliminamos columnas que tengan TODO NAs o varianza cero (constantes)
+vars_numericas <- vars_numericas[, .SD, .SDcols = sapply(vars_numericas, function(x) sd(x, na.rm=T) > 0)]
+
+# Calculamos la correlación usando solo filas completas 
+matriz_cor <- cor(vars_numericas, use = 'complete.obs')
+
+# Dibujamos el corrplot
+corrplot(matriz_cor, 
+         method = 'circle', 
+         type = 'upper', 
+         order = 'original', 
+         tl.col = 'black', 
+         tl.srt = 45,
+         addCoef.col = 'black')
+```
+
+las correlaciones son extremadamente débiles excepto en la relación Tipo de crimen y Latitud que están inversamente correlacionadas.
+
+## Análisis temporal
+
+En este apartado se quiere dar respuesta a las siguientes preguntas:
+
+* ¿Cómo se distribuyen los crímenes cometidos entre los años en que existen registros? ¿Qué años hubo y qué años hubo menos? 
+* ¿La tiplogía de delitos cometidos es uniforme a lo largo de los años?
+* ¿Existe estacionalidad para ciertos delitos?
+* ¿Existen horas del día con mayor concentración de delitos? ¿Cómo se distribuyen a lo largo del día?
+
+```{r}
+df_crimen_tipado %>%
+  # Se extrae el año de la fecha de reporte
+  mutate(anio_reporte = year(`Date Rptd`)) %>% 
+  # Se cuenta el número de delitos registrados por cada año
+  count(anio_reporte) %>% 
+  # Se calcula el porcentaje sobre el total de registros
+  mutate(percentage = n / sum(n) * 100) %>%
+  # Se genera el gráfico de barras
+  ggplot(aes(x = factor(anio_reporte), y = n)) + 
+  geom_col(color = 'white', fill = 'steelblue', width = 0.7) +
+  # Se añaden las etiquetas de porcentaje sobre las barras
+  geom_text(aes(label = paste0(round(percentage, 1), '%')), 
+            vjust = -0.5, 
+            fontface = 'bold') +
+  labs(title = 'Cantidad de Crímenes Registrados por Año',
+       subtitle = 'Basado en la variable Date Rptd',
+       x = 'Año de registro del informe', 
+       y = 'Número de delitos') +
+  theme_minimal()
+```
+
+El número de crímenes reportados crecio hasta estabilizarse entre 2022 y 2023. Los registros de 2024 son mucho menores, pero puede deberse a que el dataset no cuente con el año 2024 completo. Para ello comproboremos los crímenes por mes de 2024.
+
+```{r}
+df_crimen_tipado %>%
+  # Se filtran los datos para obtener solo el año 2024
+  filter(year(`DATE OCC`) == 2024) %>%
+  # Se extrae el mes de la fecha de ocurrencia
+  mutate(mes = month(`DATE OCC`, label = TRUE, abbr = FALSE)) %>%
+  # Se cuenta la cantidad de delitos por cada mes
+  count(mes) %>%
+  # Se calcula el porcentaje mensual dentro de 2024
+  mutate(percentage = n / sum(n) * 100) %>%
+  # Se genera el gráfico de líneas para observar la tendencia
+  ggplot(aes(x = mes, y = n, group = 1)) +
+  geom_line(color = 'steelblue', size = 1) +
+  geom_point(color = 'steelblue', size = 3) +
+  geom_text(aes(label = n), vjust = -1, size = 3.5) +
+  labs(title = 'Evolución Mensual de Delitos en 2024',
+       x = 'Mes', 
+       y = 'Cantidad de delitos') +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+El año 2024 cuenta con delitos registrados en todos lo meses, por lo que no se trata de hasta cuando se tienen registros. La tendendencia es claramente a la baja, con una drástica caída a lo largo del año.
+
+Una posible razón es que exista un retraso entre el la ocurrencia de un delito y su reporte. Se analiza a continuación el desfase entre variables calculando la diferencia media entre las fechas.
+
+```{r}
+# Se calcula la diferencia en días (Fecha Reporte - Fecha Ocurrencia)
+df_crimen_tipado[, dias_retraso := as.numeric(difftime(`Date Rptd`, `DATE OCC`, units = 'days'))]
+
+# Se calcula la media y la mediana del desfase
+resumen_retraso <- df_crimen_tipado[, .(
+  Media = mean(dias_retraso, na.rm = TRUE),
+  Mediana = median(dias_retraso, na.rm = TRUE),
+  Maximo = max(dias_retraso, na.rm = TRUE)
+)]
+
+# Se muestra el resumen en consola
+print(resumen_retraso)
+```
+
+El tiempo medio transcurrido entre la ocurrencia de un delito y su reporte es de media 12 días, por lo que esto no explica el hecho que desde abril de 2024 los registros de crímenes sean mucho menores que meses de años anteriores. Un último contraste al respecto comparara el estado administrativo en el que se ecuentran lo casos, ya que es posible que hasta que se alcanza cierto status, el reporte no se refleja en las bases de datos.
+
+```{r}
+df_crimen_tipado %>%
+  # Se filtran los años del periodo de estudio (2020-2024)
+  filter(year(`DATE OCC`) >= 2020 & year(`DATE OCC`) <= 2024) %>%
+  # Se crea la variable de año
+  mutate(anio = factor(year(`DATE OCC`))) %>%
+  # Se cuenta la frecuencia por año y estatus
+  count(anio, `Status Desc`) %>%
+  # Se genera el gráfico de barras apiladas al 100%
+  ggplot(aes(x = anio, y = n, fill = `Status Desc`)) +
+  geom_bar(stat = 'identity', position = 'fill') +
+  # Se añade una escala de porcentaje en el eje Y
+  scale_y_continuous(labels = scales::percent) +
+  labs(title = 'Distribución del Estatus Administrativo por Año',
+       subtitle = 'Comparativa de la resolución de casos (2020-2024)',
+       x = 'Año de ocurrencia', 
+       y = 'Proporción de delitos',
+       fill = 'Estatus') +
+  theme_minimal() +
+  scale_fill_brewer(palette = 'Paired') +
+  theme(legend.position = 'bottom')
+```
+
+Aunque el porcentaje de casos abiertos en 2024 es mayor, algo lógico por otra parte ya que ha habido menos tiempo para investigarlos, las diferencias no son lo suficiente significativas para que expliquen la caída en delitos.
+
+Se concluye que la diferencia respecto a años anteriores se debe a factores externos que no están reflejados en los datos de este dataset, como cambios en la política de registro por parte de la policía, u otras medidas encaminadas a reducir la delincuencia. Aunque no se descarta encontrar pistas a lo largo del resto de análisis.
+
+Se continua con un estudio de la evolución mensual de delitos comparando los diferentes años
+
+```{r}
+df_crimen_tipado %>%
+  # Se filtran los datos desde 2020 hasta 2024
+  filter(year(`DATE OCC`) >= 2020 & year(`DATE OCC`) <= 2024) %>%
+  # Se crean las variables de año y mes para la representación
+  mutate(anio = factor(year(`DATE OCC`)),
+         mes = month(`DATE OCC`, label = TRUE, abbr = TRUE)) %>%
+  # Se realiza el conteo de delitos por cada combinación de año y mes
+  count(anio, mes) %>%
+  # Se genera el gráfico de líneas con una línea por año
+  ggplot(aes(x = mes, y = n, group = anio, color = anio)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  labs(title = 'Tendencia Mensual de Delitos por Año (2020-2024)',
+       subtitle = 'Comparativa de estacionalidad con años completos',
+       x = 'Mes', 
+       y = 'Cantidad de delitos',
+       color = 'Año') +
+  theme_minimal() +
+  scale_color_brewer(palette = 'Dark2') + # Se utiliza una paleta con mayor contraste
+  theme(panel.grid.minor = element_blank())
+```
+
+Excluyendo a 2024, se puede apreciar cierta estacionalidad en el número de crímenes cometidos, con ascensos en mayom octubre y diciembre y descensos en meses como febrero, junio y septiembre. 
+
+El siguiente punto del análisis es comprobar si hay diferencia significativa entre el número de crímenes cometidos de día respcto de madrugada (entre las 0:00 y las 6:00).
+
+```{r}
+# Se crea la variable 'franja_horaria' en el data.table
+# Se asume que TIME OCC es un entero donde 130 es 01:30 y 1445 es 14:45
+df_crimen_tipado[, franja_horaria := ifelse(`TIME OCC` >= 0 & `TIME OCC` <= 599, 
+                                            'Madrugada', 'Día')]
+
+# Se calcula el resumen para ver la diferencia de volumen
+resumen_horario <- df_crimen_tipado[, .(Total = .N), by = franja_horaria]
+resumen_horario[, Porcentaje := round((Total / sum(Total)) * 100, 1)]
+
+# Se muestra el resultado
+print(resumen_horario)
+
+# Se visualiza la diferencia de forma clara
+library(ggplot2)
+ggplot(resumen_horario, aes(x = franja_horaria, y = Total, fill = franja_horaria)) +
+  geom_col(width = 0.6) +
+  geom_text(aes(label = paste0(Porcentaje, '%')), vjust = -0.5, fontface = 'bold') +
+  scale_fill_manual(values = c('Madrugada' = '#1a2a6c', 'Día' = '#fdbb2d')) +
+  labs(title = 'Volumen de Crímenes: Madrugada vs Día',
+       subtitle = 'Se define madrugada como el periodo entre las 00:00 y las 05:59',
+       x = 'Franja Horaria',
+       y = 'Número de delitos') +
+  theme_minimal() +
+  theme(legend.position = 'none')
+```
+
+La gran mayoría de los crímenes son cometidos de día.
+
+```{r}
+# Se filtran los valores que no tengan información del FBI (si los hay)
+setnames(df_crimen_tipado, 'Part 1-2', 'Part_1_2', skip_absent = TRUE)
+
+
+df_fbi_clima <- df_crimen_tipado[!is.na(Part_1_2)]
+df_fbi_clima <- df_crimen_tipado[!is.na(Part_1_2)]
+
+# Se calcula el conteo de delitos por franja horaria y gravedad (FBI)
+resumen_fbi <- df_fbi_clima[, .(total = .N), by = .(franja_horaria, Part_1_2)]
+
+# Se calcula el porcentaje dentro de cada franja horaria para comparar proporciones
+resumen_fbi[, porcentaje := (total / sum(total)) * 100, by = franja_horaria]
+
+# Se genera el gráfico de barras agrupadas
+# Esto mostrará dos columnas para 'Día' (Part 1 y 2) y dos para 'Madrugada'
+ggplot(resumen_fbi, aes(x = franja_horaria, y = total, fill = factor(Part_1_2))) +
+  geom_bar(stat = 'identity', position = 'dodge', color = 'white') +
+  geom_text(aes(label = paste0(round(porcentaje, 1), '%')), 
+            position = position_dodge(width = 0.9), 
+            vjust = -0.5, fontface = 'bold') +
+  labs(title = 'Gravedad de los Delitos (FBI) por Franja Horaria',
+       subtitle = 'Comparativa de Delitos Part 1 (Graves) vs Part 2 (Menos graves)',
+       x = 'Momento del día',
+       y = 'Cantidad de delitos',
+       fill = 'Clasificación FBI') +
+  scale_fill_manual(values = c('1' = '#c0392b', '2' = '#2980b9'),
+                    labels = c('Part 1: Graves', 'Part 2: Menos Graves')) +
+  theme_minimal() +
+  theme(legend.position = 'bottom')
+```
+
+Y la distribución entre delitos graves es similar entre las dos franjas horarias.
+
+```{r, fig.height=20, fig.width=10}
+# Se preparan los datos: conteo y filtrado del Top 10 por año
+top10_data <- df_crimen_tipado[, .(n = .N), by = .(anio = year(`DATE OCC`), Crm_Desc_Simpl)]
+setorder(top10_data, anio, -n)
+top10_data <- top10_data[, head(.SD, 10), by = anio]
+
+# Se genera el gráfico con ordenamiento individual por faceta
+ggplot(top10_data, aes(x = reorder_within(Crm_Desc_Simpl, n, anio), y = n, fill = factor(anio))) +
+  geom_col(show.legend = FALSE) +
+  # Se escala el eje X (que será el Y tras el flip) para limpiar los sufijos del reordenamiento
+  scale_x_reordered() +
+  facet_wrap(~ anio, scales = 'free', ncol = 2) + 
+  coord_flip() +
+  labs(title = 'Top 10 Delitos más Frecuentes por Año',
+       subtitle = 'Cada panel muestra su propia jerarquía independiente (2020-2024)',
+       x = 'Tipo de Delito',
+       y = 'Cantidad de Crímenes') +
+  theme_minimal() +
+  theme(strip.text = element_text(face = 'bold', size = 11),
+        axis.text.y = element_text(size = 9))
+```
+
+Los resultados indican que el robo de vehículos es el delito más persistente y masivo en la ciudad. No es una racha temporal es una tendencia constante, ocupando el primer puesto 5 años consecutivos. Otros delitos como agresión simple y delitos leves son muy frecuentes todos los años ocupando el top 3 en la mayoría de casos. Otros crímenes fecuentes son los asaltos, vandalismo, robo de propiedad dentro de vehículos y robos a hogares no habitados. En los últimos puestos de los top 10 aparecen crímenes de mayor gravdad como el asalto agravado con arma o los incluidos en la categoría 1 del FBI.
+
+## Análisis geográfico
+
+Se utilizarán variables como el área o coordenadas para responder a las siguientes preguntas:
+
+* ¿Se producen el mismo número de delitos en todas las areas? ¿Cómo se distribuyen?
+* ¿Existen zonas más peligrosas, no solo respecto a número delitos, sino por la naturaleza de los mismos?
+* ¿Se da más prioridad a la investigación a crímenes ocurridos en ciertas áreas? ¿Tiene algo que ver con la gravedad de estos delitos?
+
+```{r}
+# Se calcula el volumen de delitos por cada área
+conteo_areas <- df_crimen_tipado[, .(total = .N), by = `AREA NAME`]
+
+# Se ordenan los datos de mayor a menor para que el gráfico sea legible
+setorder(conteo_areas, -total)
+
+# Se genera el gráfico de barras
+ggplot(conteo_areas, aes(x = reorder(`AREA NAME`, total), y = total, fill = total)) +
+  geom_col() +
+  # Se usa coord_flip para que los nombres de las áreas se lean horizontalmente
+  coord_flip() +
+  # Escala de colores para resaltar visualmente las zonas con más delitos
+  scale_fill_gradient(low = '#a1c4fd', high = '#2c3e50') +
+  labs(title = 'Distribución Geográfica de Delitos en Los Ángeles',
+       subtitle = 'Volumen total de registros por Área Policial (2020-2024)',
+       x = 'Área Policial',
+       y = 'Número total de delitos registrados') +
+  theme_minimal() +
+  theme(legend.position = 'none')
+```
+
+La distribución geográfica de los delitos atendiendo a áreas, muestra importantes diferencias entre ellas. Central, es la que presenta mayor número de delitos, seguramente debido a una mayor densidad poblacional. También son más comunes los pequeños hurtos en los centros de las ciudades por su mayor afluencia de turistas y visitantes. En el otro extremo, se sitúa Foothill con menos de la mitad de delitos que Central. 
+
+El número total de delitos sube de manera relativamente escalonada con pequeños saltos entre por ejemplo, Foothill y Hollenbeck, Northeast y West LA, Hollywood y Southwest y 77th Street y Central.
+
+
+```{r}
+# Se calcula el conteo por área y tipo (Part 1 o 2)
+naturaleza_geo <- df_crimen_tipado[, .(total = .N), by = .(`AREA NAME`, Part_1_2)]
+
+# Se calcula el porcentaje relativo dentro de cada área para ver la "composición" del crimen
+naturaleza_geo[, porcentaje := (total / sum(total)) * 100, by = `AREA NAME`]
+
+# Visualización: Gráfico de barras apiladas al 100%
+ggplot(naturaleza_geo, aes(x = reorder(`AREA NAME`, total, sum), y = porcentaje, fill = Part_1_2)) +
+  geom_bar(stat = 'identity', position = 'fill') +
+  coord_flip() +
+  scale_y_continuous(labels = scales::percent) +
+  # Colores que denoten peligro (Rojo para Part 1, Azul para Part 2)
+  scale_fill_manual(values = c('1' = '#c0392b', '2' = '#2980b9'),
+                    labels = c('Part 1: Graves', 'Part 2: Leves')) +
+  labs(title = 'Composición del Crimen por Área Policial',
+       subtitle = '¿Qué porcentaje de delitos en cada zona son realmente graves?',
+       x = 'Área Policial',
+       y = 'Proporción del Tipo de Delito',
+       fill = 'Naturaleza (FBI)') +
+  theme_minimal() +
+  theme(legend.position = 'bottom')
+```
+
+El resultado muestra que la mayoría de crímenes cometidos en la ciudad de Los Ángeles son de naturaleza violenta, con una proporción que ronda el 60%-55% en la gran mayoría de áreas, donde ninguna presenta una proporción favorable a los crímenes leves. El área de Pacífic es la que mayor porcentaje de crímenes violentos registra.
+
+Se analiza el procentaje de crímenes resueltos atendiendo al área y año.
+
+```{r}
+
+df_crimen_tipado[, estado_gestion := ifelse(`Status Desc` %in% c('Adult Arrest', 'Juv Arrest', 'Adult Other'), 
+                                            'Resuelto', 'En Investigación')]
+# Se calcula el porcentaje de casos 'En Investigación' por área y año
+tabla_datos <- df_crimen_tipado[, .(
+  pct_investigacion = round(mean(estado_gestion == 'En Investigación') * 100, 1)
+), by = .(Area = `AREA NAME`, Anio = year(`DATE OCC`))]
+
+# Se transforma a formato ancho (una columna por año)
+tabla_pivot <- tabla_datos %>%
+  pivot_wider(names_from = Anio, values_from = pct_investigacion) %>%
+  arrange(desc(`2022`)) # Se ordena por un año con datos estables como referencia
+
+# Se genera la tabla con formato visual
+tabla_pivot %>%
+  gt() %>%
+  tab_header(
+    title = 'Porcentaje de Crímenes en Estado de Investigación',
+    subtitle = 'Comparativa anual por Área Policial (Valores en %)'
+  ) %>%
+  data_color(
+    columns = everything(),
+    direction = 'column',
+    palette = c('white', '#f39c12', '#d35400'),
+    domain = c(0, 100)
+  ) %>%
+  fmt_number(columns = everything(), decimals = 1) %>%
+  tab_source_note(source_note = 'Nota: Valores cercanos al 100% indican mayor saturación o casos pendientes.') %>%
+  opt_stylize(style = 6, color = 'gray')
+```
+
+Existe una relación entre el procentaje de crímenes sin resolver y el año, donde los años más recientes tienen porcentajes de delitos en investigación mayores. Esto lógico teniendo en cuenta que son más recientes y la investigación lleva menos tiempo en curso.
+
+Lo que también es evidente, es que existen claras diferencias entre áreas respecto a la proporción de delitos resueltos. Mientras áreas como West Valleym Harbor o Topanga entre otras, los delitos en investigación rondan el 70%-75%, Pacific, Hollywood, Central o West LA tienen tasas de resolución mucho menores, con porcentajes de delitos en investigación superiores al 80%. Esto puede estar ocasionado por un menor apoyor insitutcional a la labor policial en dichas zonas.
+
+## Análisis demográfico
+
+El objetivo es analizar si el sexo, edad o etnia tienen efectos predictivos sobre el crímen.
+
+* ¿Quiénes son más vulnerables de sufrir un delito? ¿Qué delitos son más propensos de sufrir cada grupo?
+* ¿Guarda realción con zonas y ha evolucionado en el tiempo?
+
+Se comienza comparando por quienes sufren más crímenes. Los hombres o las mujeres.
+
+```{r}
+# Calculamos totales y porcentajes usando la variable ya tipificada
+tabla_genero_final <- df_crimen_tipado[, .(
+  Total = .N
+), by = .(`Género` = `Vict Sex`)]
+
+# Calculamos el porcentaje global
+tabla_genero_final[, `Porcentaje (%)` := round((Total / sum(Total)) * 100, 2)]
+
+tabla_genero_final[order(-Total)] %>%
+  gt() %>%
+  tab_header(
+    title = 'Perfil Demográfico: Género de las Víctimas',
+    subtitle = 'Volumen total y representatividad en el registro de crímenes'
+  ) %>%
+  cols_label(
+    Total = 'Nº de Registros',
+    `Porcentaje (%)` = 'Peso Relativo'
+  ) %>%
+  fmt_number(
+    columns = Total,
+    sep_mark = '.',
+    decimals = 0
+  ) %>%
+  data_color(
+    columns = `Porcentaje (%)`,
+    palette = c('#edf2f7', '#3182ce'),
+    domain = c(0, 50)
+  ) %>%
+  opt_stylize(style = 6, color = 'gray')
+```
+
+Los hombres son más vunerables a ser víctimas de delitos representando el grupo principal de la muestra (40%), aunque no es una gran diferencia respecto a las mujeres. En 25% de los casos, el sexo de la víctima no quedo registrado.
+
+```{r, fig.height=15, fig.width=10}
+# Se prepara el conteo
+conteo_delitos_genero <- df_crimen_tipado[, .(total = .N), 
+                                           by = .(`Vict Sex`, Crm_Desc_Simpl)]
+
+# Se saca el Top 10 por cada género
+top10_por_genero <- conteo_delitos_genero[, .SD[order(-total)][1:10], 
+                                           by = `Vict Sex`]
+
+# Se genera el gráfico sin librerías raras
+ggplot(top10_por_genero, aes(x = reorder(Crm_Desc_Simpl, total), y = total, fill = `Vict Sex`)) +
+  geom_col(width = 0.7) + # geom_col es más directo que geom_bar(stat='identity')
+  coord_flip() + 
+  # Ponemos ncol = 1 para que el gráfico crezca hacia abajo y no se amontone
+  facet_wrap(~ `Vict Sex`, scales = 'free_y', ncol = 1) + 
+  scale_fill_manual(values = c('M' = '#3498db', 'F' = '#e74c3c', 'Unknown/Other' = '#95a5a6')) +
+  labs(title = 'Top 10 Delitos por Género de la Víctima',
+       subtitle = 'Comparativa del volumen de los delitos más frecuentes por grupo',
+       x = 'Tipo de Delito',
+       y = 'Número Total de Registros') +
+  theme_minimal() +
+  theme(legend.position = 'none', 
+        strip.text = element_text(face = 'bold', size = 12),
+        axis.text.y = element_text(size = 9),
+        panel.spacing = unit(2, 'lines')) # Espacio extra entre M, F y Unknown
+```
+
+Existe disparidad respecto a la naturaleza del prinicipal delito sufrido por mujeres y hombres. El delito más común donde la víctima es una mujer es la violencia doméstica, mientras que para los hombres es el asalto con arma. Sin embargo, el resto del top de delitos es similar para ambos sexos. 
+
+Otro resultado esclarecedor de este gráfico, es el hecho de que la causa de que haya tantos reportes donde no se especifica el sexo de la víctima, está relacionado con el motivo del crimen. En delitos contra la propiedad como el robo de vehículos (delito más común de toda la muestra), robo de hogares o tiendas y vandalismo entre otros no se registra el sexo de la víctima, o víctimas, quizá por no existir una interacción directa.
+
+Se procede a realizar un análisis análogo con la variable etnia.
+```{r}
+# Definimos el diccionario de traducción para una lectura clara
+etnias_dict <- c(
+  'A' = 'Otros Asiáticos', 'B' = 'Negro', 'C' = 'Chino', 'D' = 'Camboyano',
+  'F' = 'Filipino', 'G' = 'Guameño', 'H' = 'Hispano/Latino', 'I' = 'Indio Americano',
+  'J' = 'Japonés', 'K' = 'Coreano', 'L' = 'Laosiano', 'O' = 'Otros',
+  'P' = 'Isleño Pacífico', 'S' = 'Samoano', 'U' = 'Hawaiiano', 'V' = 'Vietnamita',
+  'W' = 'Blanco', 'X' = 'Desconocido', 'Z' = 'Indochino', 'Unknown' = 'No Registrado'
+)
+
+#Creamos el resumen: conteo total y porcentaje
+resumen_etnias <- df_crimen_tipado[, .(Total = .N), by = .(`Etnia` = `Vict Descent`)]
+
+# Aplicamos la traducción de los códigos
+resumen_etnias[, Etnia_Desc := etnias_dict[as.character(Etnia)]]
+resumen_etnias[is.na(Etnia_Desc), Etnia_Desc := 'Otros/Desconocidos']
+
+# Calculamos el porcentaje sobre el total del dataset
+resumen_etnias[, `Porcentaje (%)` := round((Total / sum(Total)) * 100, 2)]
+
+# 3. Generamos la tabla visual ordenada por volumen
+resumen_etnias[order(-Total), .(Etnia_Desc, Total, `Porcentaje (%)`)] %>%
+  gt() %>%
+  tab_header(
+    title = 'Distribución de Víctimas por Etnia',
+    subtitle = 'Volumen total y representatividad en el registro criminal'
+  ) %>%
+  cols_label(
+    Etnia_Desc = 'Grupo Étnico',
+    Total = 'Número de Víctimas',
+    `Porcentaje (%)` = 'Peso Relativo'
+  ) %>%
+  fmt_number(
+    columns = Total,
+    sep_mark = '.',
+    decimals = 0
+  ) %>%
+  data_color(
+    columns = `Porcentaje (%)`,
+    palette = c('#f8f9fa', '#2c3e50'),
+    domain = c(0, 40)
+  ) %>%
+  tab_source_note(source_note = 'Nota: Los códigos originales de LAPD han sido decodificados para facilitar su lectura.') %>%
+  opt_stylize(style = 6, color = 'gray')
+```
+
+Los hispanos suponen casi el 30% de las víctimas registradas en el dataset, seguido por blancos y negros. Estos 3 grupos conforman la inmensa mayoría de los registros, algo seguramente muy relacionado con la distribución de la propia población de Los Ángeles. La categoría no registrado se considera como delitos contra la propiedad.
+
+Para simplificar el análisis se agrupan las etnias fuera del top 4, que son las que tiene más peso, en la categoría de origen asíatico.
+
+```{r}
+top_5_etnias <- c('H', 'W', 'B', 'O', 'X')
+
+# Aseguramos la etiqueta (usando el diccionario que ya creaste)
+df_crimen_tipado[, Etnia_Label := etnias_dict[as.character(`Vict Descent`)]]
+
+# Cálculo de la tabla 
+tabla_fbi_directa <- df_crimen_tipado[`Vict Descent` %in% top_5_etnias, .(
+  # Usamos backticks para que R reconozca el nombre con guion
+  pct_grave = round((mean(Part_1_2 == 1, na.rm = TRUE)) * 100, 2)
+), by = .(Etnia = Etnia_Label)][order(-pct_grave)]
+
+
+ggplot(tabla_fbi_directa, aes(x = reorder(Etnia, pct_grave), y = pct_grave, fill = Etnia)) +
+  geom_bar(stat = 'identity', width = 0.6) +
+  coord_flip() +
+  scale_fill_manual(values = c(
+    'Hispano/Latino' = '#3498db', 
+    'Blanco' = '#e74c3c', 
+    'Negro' = '#f1c40f', 
+    'Otros' = '#8e44ad', 
+    'Desconocido' = '#16a085'
+  )) +
+  labs(
+    title = 'Incidencia de Delitos Graves (Clasificación Oficial FBI)',
+    subtitle = 'Porcentaje de registros etiquetados como "Part 1" en el dataset original',
+    x = 'Grupo Étnico',
+    y = 'Porcentaje de Delitos Graves (%)'
+  ) +
+  theme_minimal() +
+  theme(legend.position = 'none')
+```
+
+
+El colectivo que más sufre de delitos considerados como graves son los blancos con casi un 60% de delitos graves. Le siguen Negros e hipanos con cifras muy similares entre ambos grupos rozando el 50%. Por lo tanto, la raza puede ser un incidicador significativo de la propensón a ser víctima de cierto tipo de delitos.
+
+Los delitos contra la propiedad (donde no existe un perfilado de la víctima), son en su mayoría graves.
+
+Por último se estudia el papel que juega la edad.
+
+```{r}
+ggplot(df_crimen_tipado[`Vict Age` > 0 & `Vict Age` < 100], 
+       aes(x = as.numeric(`Vict Age`))) +
+  # Usamos count en lugar de density y fijamos el límite en 0
+  geom_histogram(binwidth = 5, # se fivide en intervalos de 5 años para facilitar lectura
+                 boundary = 0, 
+                 fill = '#2c3e50', 
+                 color = 'white', 
+                 alpha = 0.8) +
+  # Marcamos los cortes de cada 5 años en el eje X para que coincidan con las barras
+  scale_x_continuous(breaks = seq(0, 100, 5)) +
+  # Añadimos separadores de miles al eje Y para mayor claridad
+  scale_y_continuous(labels = scales::comma) +
+  labs(title = 'Distribución de Víctimas por Rangos de Edad (5 años)',
+       x = 'Edad de la Víctima (Rangos de 5 años)',
+       y = 'Número Total de Víctimas') +
+  theme_minimal() +
+  theme(panel.grid.minor = element_blank(),
+        axis.text.x = element_text(angle = 45, hjust = 1)) # Inclinamos los números para que no se choquen
+```
+
+Las personas más propensas a ser víctimas de un delito son los jóvenes, especialmente aquellos entre 20 y 25 años con más de 200.00 reportes, cifras que prácticamente duplican al segundo grupo más frecuente. Este segundo grupo son las personas entre 25 y 30 años, seguidas muy de cerca por personas entre 30 y 35. Esto puede tener relación con la mayor exposición de personas jóvenes en promedio a la vida noctura, así como, a participar en actividades de mayor riesgo. 
+
+A partir de ahí, la cola de la derecha muestra una clara tendencia a la baja para los siguientes grupos de edad. 
+
+Hacia la izquierda, el grupo que recoge a personas de entre 15 y 20 años registra un un descenso respecto al pico que suponen las personas mayores de 20 años, seguramente relacionado con la menor exposición a la violencia. Los niños son, junto a las personas de avanzada edad (+80 años) las víctimas menos frecuentes en Los Ángeles por un amplio margen. 
+
+Por lo tanto, existen grupos de edad donde se concentra el riesgo. 
+
+Se comparan estas observaciones con la gravedada de los delitos. 
+```{r}
+tabla_gravedad_edad <- df_crimen_tipado[`Vict Age` > 0 & `Vict Age` < 100, 
+                .(pct_grave = mean(`Part_1_2` == 1, na.rm = TRUE) * 100), 
+                by = .(Tramo = cut(`Vict Age`, breaks = seq(0, 100, 5), right = FALSE))]
+
+# Graficamos para ver la evolución de la "peligrosidad"
+ggplot(tabla_gravedad_edad, aes(x = Tramo, y = pct_grave, group = 1)) +
+  geom_line(color = '#c0392b', size = 1) +
+  geom_point(size = 3, color = '#c0392b') +
+  labs(title = 'Proporción de Delitos Graves por Tramo de Edad (5 años)',
+       subtitle = 'Evolución de la gravedad (FBI Part 1) según el ciclo de vida',
+       x = 'Rango de Edad',
+       y = '% de Delitos Part 1 (Graves)') +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+Los jóvenes de entre 20 y 25 años, además de ser el grupo que más víctimas registra, es también el que sufre una mayor proporción de delitos graves, más de un 70% de las ocasiones. Esta proporción disminuye notablemente para personas mayores de 25 años, estabilizándose alrededor del 55% hasta alcanzar un nuevo pico en en personas entre 90 y 100 años, que registran delitos graves en más del 60% de ocasiones.
+
+En el extremo opuesto, los grupos que presentan una menor incidencia de delitos graves son los niños y adolescentes menores de 15.
+
+A la luz de estos resultados se estudia en más profundidad de que delitos son víctimas los grupos de personas de la terecera edad.
+
+```{r}
+# Filtramos por ancianos (por ejemplo, > 80 años) y vemos la gravedad real
+resumen_gravedad_ancianos <- df_crimen_tipado[`Vict Age` >= 80, .N, 
+                                              by = .(Crm_Desc_Simpl, `Part_1_2`)]
+
+# Ordenamos para ver cuáles predominan
+print(resumen_gravedad_ancianos[order(-N)])
+```
+
+La razón por la que las personas de estos dos grupos registran un procentaje tan alto de delitos graves, es principalmente por los robos con fuerza en su hogar con 1242 reportes. Puede que su mayor indefensión, los convierta en objetivos fáciles para ladrones especializados en robo de hogares.
+
+
+# Conclusiones y recomendaciones
+
+## Calidad de los datos
+
+### Estructura del dataset
+
+**Edades 0**
+Se detectó una concentración masiva de valores en los que la edad de la víctima era 0. Tras analizar la naturaleza de los delitos asociados, se determinó que no representan víctimas reales, sino que actúan como un marcador administrativo para delitos contra la propiedad donde la víctima no está presente.
+
+Se decidió mantener esos valores como NA para no modificar el perfil demográfico de la muestra, imputando edades a registros donde no debería haber.
+
+**Registros duplicados**
+Se ha  optado por eliminar registros que compartían una serie de variables dificilmente coincidentes en la realidad.
+
+**Eliminación de variables**
+Se eliminaron ciertas variables que o bien no aportaban valor al análisis o eran redudantes.
+
+**Transformaciones**
+Se han llevado a cabo múltiples transformaciones de las variables: desde transformaciones de tipo, hasta simplificación de los registros mediante categorizaciones.
+
+### Análisis Temporal
+
+* Tendencia general: El volumen de crímenes creció hasta estabilizarse entre 2022 y 2023. Se detectó una caída drástica en los registros de 2024 que no se explica por un retraso administrativo o casos abiertos, sugiriendo cambios externos en políticas de registro o seguridad.
+
+* Estacionalidad: Existe un patrón mensual claro con picos de criminalidad en mayo, octubre y diciembre, mientras que febrero, junio y septiembre presentan los niveles más bajos.
+
+* Análisis horario: La gran mayoría de los delitos (84.7%) ocurren durante el día. Sin embargo, la proporción entre delitos graves (Part 1) y leves (Part 2) se mantiene constante sin importar si es de día o de madrugada.
+
+* Persistencia: El robo de vehículos es el delito más crítico y constante, ocupando el primer puesto del Top 10 durante los últimos 5 años de forma consecutiva.
+
+### Análisis Geográfico
+
+* Concentración por áreas: Existe una disparidad enorme entre zonas. El área Central lidera el volumen de delitos (posiblemente por densidad y turismo), duplicando en registros a zonas como Foothill, que es la más segura en términos de volumen.
+
+* Naturaleza del crimen: Los Ángeles es una ciudad con predominancia de delitos graves. En casi todas las áreas, los delitos de tipo Part 1 representan entre el 55% y 60% del total. El área de Pacific destaca por tener la mayor proporción de crímenes violentos.
+
+* Eficiencia policial: Se observa una brecha en la resolución de casos según la zona. Áreas como West Valley o Harbor tienen mejores tasas de resolución, mientras que en Pacific, Central y Hollywood, más del 80% de los delitos permanecen en estado de investigación, lo que podría indicar saturación o falta de recursos en esos distritos.
+
+### Análisis Demográfico
+
+* Género: Los hombres son víctimas con mayor frecuencia (40%) que las mujeres (35.6%). La principal diferencia radica en el tipo de delito: las mujeres sufren mayormente violencia doméstica, mientras que los hombres son víctimas de asaltos con arma.
+
+* Etnicidad: El grupo Hispano/Latino es el más afectado en volumen total (casi el 30% de las víctimas). No obstante, al analizar la gravedad, el grupo de etnia blanca es el que sufre una mayor proporción de delitos graves (60%), seguido de negros e hispanos (50%).
+
+* Edad: El riesgo se concentra agresivamente en los jóvenes. El tramo de 20 a 25 años no solo es el que más víctimas registra, sino que también sufre la mayor tasa de delitos graves (más del 70%).
+
+* Vulnerabilidad en la tercera edad: Aunque los ancianos son víctimas menos frecuentes, cuando sufren un delito, este suele ser grave. Destaca el Burglary (robo en vivienda) como el delito Part 1 principal en mayores de 80 años, evidenciando que son objetivos específicos para el robo con fuerza en el hogar debido a su mayor indefensión.
