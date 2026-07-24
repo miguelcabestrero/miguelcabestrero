@@ -1,0 +1,2828 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Miguel Cabestrero">
+<meta name="dcterms.date" content="2026-07-01">
+
+<title>quarto-input3ede9feae1b4a5fa</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="Miguel_Cabestrero_Analisis_multivariante_practica_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Miguel_Cabestrero_Analisis_multivariante_practica_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="Miguel_Cabestrero_Analisis_multivariante_practica_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="Miguel_Cabestrero_Analisis_multivariante_practica_files/libs/quarto-html/popper.min.js"></script>
+<script src="Miguel_Cabestrero_Analisis_multivariante_practica_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="Miguel_Cabestrero_Analisis_multivariante_practica_files/libs/quarto-html/anchor.min.js"></script>
+<link href="Miguel_Cabestrero_Analisis_multivariante_practica_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Miguel_Cabestrero_Analisis_multivariante_practica_files/libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="Miguel_Cabestrero_Analisis_multivariante_practica_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="Miguel_Cabestrero_Analisis_multivariante_practica_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="Miguel_Cabestrero_Analisis_multivariante_practica_files/libs/bootstrap/bootstrap-bb462d781dde1847d9e3ccf7736099dd.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+<link rel="stylesheet" href="customRHG_UNED.css">
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><b>
+<div style="text-align: center">
+Análisis multivariante II evaluación
+</div>
+</b><p><b></b></p></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Miguel Cabestrero </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">July 1, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="paquetes-y-opciones" class="level1">
+<h1>Paquetes y opciones</h1>
+<p>Se cargan los paquetes utilizados.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Función para cargar los paquetes y previamente instalar los no existentes</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>enable_packages <span class="ot">&lt;-</span> <span class="cf">function</span>(x){ </span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span>( i <span class="cf">in</span> x ){ </span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span>( <span class="sc">!</span> <span class="fu">require</span>( i , <span class="at">character.only =</span> <span class="cn">TRUE</span> ) ){ </span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>      <span class="fu">install.packages</span>( i , <span class="at">dependencies =</span> <span class="cn">TRUE</span> ) </span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">require</span>( i , <span class="at">character.only =</span> <span class="cn">TRUE</span> ) </span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    } </span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  } </span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Paquetes</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">enable_packages</span>(<span class="fu">c</span>(<span class="st">'data.table'</span>, <span class="st">'dplyr'</span>, <span class="st">'tidyverse'</span>, <span class="st">'reactable'</span>, <span class="st">'readxl'</span>, <span class="st">'corrplot'</span>, <span class="st">'gridExtra'</span>, <span class="st">'skimr'</span>, <span class="st">'psych'</span>, <span class="st">'plm'</span>, <span class="st">'MASS'</span>, <span class="st">'ggplot2'</span>, <span class="st">'ggrepel'</span>, <span class="st">'ggpubr'</span>, <span class="st">'CCA'</span>, <span class="st">'factoextra'</span>, <span class="st">'RGCCA'</span>, <span class="st">'ca'</span>, <span class="st">'readxl'</span>, <span class="st">'MultBiplotR'</span>, <span class="st">'readxl'</span>, <span class="st">'tinytex'</span>))</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Se quita la notación científica</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">scipen =</span> <span class="dv">999</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Semilla aleatoria para mostrar muestras de los datos</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="ejercicio-1-análisis-discriminante" class="level1">
+<h1>Ejercicio 1: Análisis discriminante</h1>
+<p>Se dispone de información acerca de 16 clientes a los que se les concedió un préstamo instantáneo por un importe de 12.000 euros cada uno. Una vez transcurridos tres años desde la concesión de los préstamos, 8 clientes fueron clasificados como fallidos, mientras que los otros 8 son cumplidores, ya que reintegraron el préstamo.</p>
+<p>Para cada uno de los clientes se dispone de información sobre su patrimonio neto y sus deudas pendientes correspondientes al momento de la solicitud. Con la información sobre las variables de patrimonio neto y deudas pendientes se desea construir una función discriminante que clasifique con los menores errores posibles a los clientes en dos grupos: fallidos y no fallidos.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>Patrimonio <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">1.3</span>, <span class="fl">3.7</span>, <span class="dv">5</span>, <span class="fl">5.9</span>, <span class="fl">7.1</span>, <span class="dv">4</span>, <span class="fl">7.9</span>, <span class="fl">5.1</span>, <span class="fl">5.2</span>, <span class="fl">9.8</span>, <span class="dv">9</span>, <span class="dv">12</span>, <span class="fl">6.3</span>, <span class="fl">8.7</span>, <span class="fl">11.1</span>, <span class="fl">9.9</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>Deuda      <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">4.1</span>, <span class="fl">6.9</span>, <span class="dv">3</span>, <span class="fl">6.5</span>, <span class="fl">5.4</span>, <span class="fl">2.7</span>, <span class="fl">7.6</span>, <span class="fl">3.8</span>, <span class="dv">1</span>, <span class="fl">4.2</span>, <span class="fl">4.8</span>, <span class="dv">2</span>, <span class="fl">5.2</span>, <span class="fl">1.1</span>, <span class="fl">4.1</span>, <span class="fl">1.6</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>Grupo      <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Se pide formular la función discriminante y tomar la decisión acerca de dos nuevas solicitudes de un préstamo instantáneo. El primer solicitante dispone de un patrimonio neto de 10,1, con unas deudas pendientes de 6,8. Para el segundo solicitante, los valores de estas variables son 9,7 y 2,2, respectivamente.</p>
+<p>Se comienza transformando los datos en un data frame y la variable dependiente (grupo) en factor.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>prestamo <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">patrimonio =</span> <span class="fu">c</span>(<span class="fl">1.3</span>, <span class="fl">3.7</span>, <span class="dv">5</span>, <span class="fl">5.9</span>, <span class="fl">7.1</span>, <span class="dv">4</span>, <span class="fl">7.9</span>, <span class="fl">5.1</span>, <span class="fl">5.2</span>, <span class="fl">9.8</span>, <span class="dv">9</span>, <span class="dv">12</span>, <span class="fl">6.3</span>, <span class="fl">8.7</span>, <span class="fl">11.1</span>, <span class="fl">9.9</span>),</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">deuda      =</span> <span class="fu">c</span>(<span class="fl">4.1</span>, <span class="fl">6.9</span>, <span class="dv">3</span>, <span class="fl">6.5</span>, <span class="fl">5.4</span>, <span class="fl">2.7</span>, <span class="fl">7.6</span>, <span class="fl">3.8</span>, <span class="dv">1</span>, <span class="fl">4.2</span>, <span class="fl">4.8</span>, <span class="dv">2</span>, <span class="fl">5.2</span>, <span class="fl">1.1</span>, <span class="fl">4.1</span>, <span class="fl">1.6</span>),</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">grupo      =</span> <span class="fu">factor</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>))</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="fu">skim</span>(prestamo)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Name</td>
+<td style="text-align: left;">prestamo</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Number of rows</td>
+<td style="text-align: left;">16</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Number of columns</td>
+<td style="text-align: left;">3</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">_______________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Column type frequency:</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">factor</td>
+<td style="text-align: left;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">2</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">________________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Group variables</td>
+<td style="text-align: left;">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: factor</strong></p>
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 21%">
+<col style="width: 15%">
+<col style="width: 21%">
+<col style="width: 12%">
+<col style="width: 13%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: left;">ordered</th>
+<th style="text-align: right;">n_unique</th>
+<th style="text-align: left;">top_counts</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">grupo</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">0: 8, 1: 8</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: numeric</strong></p>
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 12%">
+<col style="width: 18%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 5%">
+<col style="width: 6%">
+<col style="width: 5%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 7%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">mean</th>
+<th style="text-align: right;">sd</th>
+<th style="text-align: right;">p0</th>
+<th style="text-align: right;">p25</th>
+<th style="text-align: right;">p50</th>
+<th style="text-align: right;">p75</th>
+<th style="text-align: right;">p100</th>
+<th style="text-align: left;">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">patrimonio</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">2.95</td>
+<td style="text-align: right;">1.3</td>
+<td style="text-align: right;">5.07</td>
+<td style="text-align: right;">6.7</td>
+<td style="text-align: right;">9.20</td>
+<td style="text-align: right;">12.0</td>
+<td style="text-align: left;">▂▇▅▆▅</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">deuda</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">2.03</td>
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">2.53</td>
+<td style="text-align: right;">4.1</td>
+<td style="text-align: right;">5.25</td>
+<td style="text-align: right;">7.6</td>
+<td style="text-align: left;">▆▃▇▃▅</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Todas las variables predictoras son numéricas, por lo que se puede realizar el análisis discriminante.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>devolucion <span class="ot">=</span> <span class="fu">lda</span>(grupo <span class="sc">~</span> patrimonio <span class="sc">+</span> deuda, <span class="at">data=</span>prestamo)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(devolucion)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call:
+lda(grupo ~ patrimonio + deuda, data = prestamo)
+
+Prior probabilities of groups:
+  0   1 
+0.5 0.5 
+
+Group means:
+  patrimonio deuda
+0          9     3
+1          5     5
+
+Coefficients of linear discriminants:
+                  LD1
+patrimonio -0.4224919
+deuda       0.3802226</code></pre>
+</div>
+</div>
+<p>Se comprueba la precisión del análisis.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>probs <span class="ot">=</span> <span class="fu">predict</span>(devolucion, <span class="at">newdata=</span>prestamo, <span class="at">type=</span><span class="st">"prob"</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(probs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   class posterior.0  posterior.1        LD1
+1      1 0.002486811 0.9975131890  2.4462261
+2      1 0.002197226 0.9978027741  2.4968690
+3      1 0.242530318 0.7574696815  0.4647612
+4      1 0.030234699 0.9697653007  1.4152977
+5      1 0.231323058 0.7686769420  0.4900625
+6      1 0.130717952 0.8692820481  0.7731863
+7      1 0.081482154 0.9185178455  0.9885588
+8      1 0.144217853 0.8557821467  0.7266901
+9      0 0.717400615 0.2825993848 -0.3801825
+10     0 0.937756867 0.0622431333 -1.1069328
+11     0 0.790045099 0.2099549005 -0.5408057
+12     0 0.999124468 0.0008755318 -2.8729048
+13     1 0.136727709 0.8632722914  0.7520115
+14     0 0.988591388 0.0114086116 -1.8208819
+15     0 0.984502783 0.0154972169 -1.6941946
+16     0 0.994719274 0.0052807262 -2.1377609</code></pre>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(probs<span class="sc">$</span>class,prestamo<span class="sc">$</span>grupo)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   
+    0 1
+  0 7 0
+  1 1 8</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(probs<span class="sc">$</span>class<span class="sc">==</span>prestamo<span class="sc">$</span>grupo) <span class="co"># Porcentaje de bien clasificados</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.9375</code></pre>
+</div>
+</div>
+<p>El modelo clasifica correctamente un 93.75% de las observaciones de la muestra.</p>
+<p>A continuación, se realiza una predicción para los dos solicitantes con el objetivo de clasificarles.</p>
+<p>Primero se crea un nuevo data frame con los dos solictantes.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>nuevas_solicitudes <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">patrimonio =</span> <span class="fu">c</span>(<span class="fl">10.1</span>, <span class="fl">9.7</span>),</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">deuda      =</span> <span class="fu">c</span>(<span class="fl">6.8</span>, <span class="fl">2.2</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>predicciones_nuevas <span class="ot">&lt;-</span> <span class="fu">predict</span>(devolucion, <span class="at">newdata=</span>nuevas_solicitudes, <span class="at">type =</span> <span class="st">'prob'</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Se estructuran los resultados para facilitar su lectura y análisis.</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>resultados_nuevos <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">Solicitante    =</span> <span class="fu">c</span>(<span class="st">'Solicitante 1'</span>, <span class="st">'Solicitante 2'</span>),</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">Patrimonio     =</span> nuevas_solicitudes<span class="sc">$</span>patrimonio,</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">Deuda          =</span> nuevas_solicitudes<span class="sc">$</span>deuda,</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">Clase_Asignada =</span> predicciones_nuevas<span class="sc">$</span>class,</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">Prob_Cumplidor =</span> predicciones_nuevas<span class="sc">$</span>posterior,</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">Prob_Fallido   =</span> predicciones_nuevas<span class="sc">$</span>posterior</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(resultados_nuevos)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    Solicitante Patrimonio Deuda Clase_Asignada Prob_Cumplidor.0
+1 Solicitante 1       10.1   6.8              0        0.6457935
+2 Solicitante 2        9.7   2.2              0        0.9887082
+  Prob_Cumplidor.1 Prob_Fallido.0 Prob_Fallido.1
+1       0.35420646      0.6457935     0.35420646
+2       0.01129183      0.9887082     0.01129183</code></pre>
+</div>
+</div>
+<p>El modelo predice que ambos solicitantes devolverán el préstamo. Sin embargo, el solictante uno tiene unas probabilidades menores (64%) que el solicitante dos (98%). Es un resultado lógico atendiendo a la relación de patrimonio respecto a la deuda, que es mucho mayor para el solicitante 2.</p>
+</section>
+<section id="ejercicio-2-análisis-factorial" class="level1">
+<h1>Ejercicio 2: Análisis factorial</h1>
+<p>Se raliza un análisis factorial basado en los datos de un Excel que recoge información sobre la atención hospitalaria. Se comienza cargando los datos.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>datos_hospital <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">'datos_atencion_hospitalaria.xlsx'</span>, <span class="at">sheet =</span> <span class="st">'Hoja1'</span>)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Se muestra el inicio de los datos importados</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(datos_hospital)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 14
+  S         E    DI C         D    P1    P2    P3    P4    P5    P6    P7 P8   
+  &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;
+1 h        52     2 NO        1     3     4     4     4     4     2     1 SI   
+2 h        78     4 NO        2     2     3     3     4     4     5     4 SI   
+3 h        34     3 NO        3     2     2     4     4     4     1     2 NO   
+4 h        45     6 SI        4     4     3     3     3     3     4     4 SI   
+5 h        47     8 SI        1     5     5     2     2     2     3     3 SI   
+6 h        59     2 NO        4     4     3     3     3     3     3     2 NO   
+# ℹ 1 more variable: VG &lt;dbl&gt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">skim</span>(datos_hospital)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Name</td>
+<td style="text-align: left;">datos_hospital</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Number of rows</td>
+<td style="text-align: left;">100</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Number of columns</td>
+<td style="text-align: left;">14</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">_______________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Column type frequency:</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">character</td>
+<td style="text-align: left;">3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">11</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">________________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Group variables</td>
+<td style="text-align: left;">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: character</strong></p>
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 13%">
+<col style="width: 19%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 8%">
+<col style="width: 12%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">min</th>
+<th style="text-align: right;">max</th>
+<th style="text-align: right;">empty</th>
+<th style="text-align: right;">n_unique</th>
+<th style="text-align: right;">whitespace</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">S</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">C</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">P8</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: numeric</strong></p>
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 12%">
+<col style="width: 18%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 3%">
+<col style="width: 5%">
+<col style="width: 6%">
+<col style="width: 5%">
+<col style="width: 6%">
+<col style="width: 7%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">mean</th>
+<th style="text-align: right;">sd</th>
+<th style="text-align: right;">p0</th>
+<th style="text-align: right;">p25</th>
+<th style="text-align: right;">p50</th>
+<th style="text-align: right;">p75</th>
+<th style="text-align: right;">p100</th>
+<th style="text-align: left;">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">E</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">52.99</td>
+<td style="text-align: right;">16.99</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">40</td>
+<td style="text-align: right;">47.0</td>
+<td style="text-align: right;">69</td>
+<td style="text-align: right;">84</td>
+<td style="text-align: left;">▅▇▃▅▅</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">DI</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">9.77</td>
+<td style="text-align: right;">13.72</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">4.0</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">78</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">D</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2.41</td>
+<td style="text-align: right;">1.12</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2.0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">▇▇▁▆▆</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">P1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3.50</td>
+<td style="text-align: right;">1.17</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3.5</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">▁▇▇▇▇</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">P2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3.29</td>
+<td style="text-align: right;">1.09</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3.0</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">▇▅▁▇▃</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">P3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2.91</td>
+<td style="text-align: right;">1.32</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3.0</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">▅▇▆▇▅</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">P4</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3.21</td>
+<td style="text-align: right;">1.18</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3.0</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">▂▇▇▇▅</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">P5</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3.36</td>
+<td style="text-align: right;">1.05</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3.0</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">▇▇▁▇▅</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">P6</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3.32</td>
+<td style="text-align: right;">1.30</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3.0</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">▁▇▅▅▇</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">P7</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2.85</td>
+<td style="text-align: right;">1.08</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3.0</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">▂▇▁▂▇</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">VG</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">6.30</td>
+<td style="text-align: right;">1.66</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">6.0</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: left;">▃▂▇▂▂</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Se seleccionan las variables objeto del análisis, las cuales son todas numéricas. También se modifica el nombre para facilitar la interpretación.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>datos_fa <span class="ot">&lt;-</span> datos_hospital <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">select</span>(</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">estado_habitaciones =</span> P1,</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">comida =</span> P2,</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">atencion_no_san =</span> P3,</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">atencion_auxi =</span> P4,</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">atencion_enferm =</span> P5,</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">atencion_med =</span> P6,</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">info_recibida =</span> P7</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Se continua con las prueba de Barlett y el test KMO para determinar si es adecuado realizar el análisis factorial.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">cortest.bartlett</span>(datos_fa))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$chisq
+[1] 668.5095
+
+$p.value
+[1] 0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005914187
+
+$df
+[1] 21</code></pre>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">KMO</span>(datos_fa))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Kaiser-Meyer-Olkin factor adequacy
+Call: KMO(r = datos_fa)
+Overall MSA =  0.58
+MSA for each item = 
+estado_habitaciones              comida     atencion_no_san       atencion_auxi 
+               0.39                0.45                0.82                0.70 
+    atencion_enferm        atencion_med       info_recibida 
+               0.76                0.49                0.42 </code></pre>
+</div>
+</div>
+<p>Aunque se rechaza la hipótesis nula de no correlación al obtener un p-valor muy bajo en el test de Barlett, el test KMO sugiere que la intensidad de la correlación es débil (0.58).</p>
+<p>Se complementa estos hallazgos con un análisis gráfico de la matriz de correlaciones.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>matriz_cor <span class="ot">&lt;-</span> <span class="fu">cor</span>(datos_fa, <span class="at">use =</span> <span class="st">'complete.obs'</span>)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>))</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="fu">corrplot</span>(matriz_cor, </span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">method =</span> <span class="st">'color'</span>, </span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">type =</span> <span class="st">'upper'</span>, </span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">number.cex =</span> <span class="dv">1</span>, </span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">addCoef.col =</span> <span class="st">'black'</span>,</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">tl.cex =</span> <span class="dv">1</span>, </span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>         <span class="at">tl.col =</span> <span class="st">'black'</span>,</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>         <span class="at">tl.srt =</span> <span class="dv">45</span>, </span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>         <span class="at">diag =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>         <span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">0</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Miguel_Cabestrero_Analisis_multivariante_practica_files/figure-html/unnamed-chunk-13-1.png" class="quarto-figure quarto-figure-center figure-img" style="width:100.0%;height:80.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Existen correlaciones muy fuertes entre varias variables. Otras sin embargo, apenas tiene relación.</p>
+<p>Se procedes a calcular los autovalores para decidir el número de factores con los que se trabajará.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>ev <span class="ot">&lt;-</span> <span class="fu">eigen</span>(<span class="fu">cor</span>(datos_fa)) </span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>ev<span class="sc">$</span>values</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2.92178967 2.21885726 1.40478574 0.19655439 0.12739855 0.07828137 0.05233301</code></pre>
+</div>
+</div>
+<p>Atendiendo a los autovalores se decide continuar con 3 factores ya que estos son mayores que 1.</p>
+<p>Se utiliza fa para el análisis factorial junto con la rotación promax, ya que a diferencia de la varimax, realiza rotaciones oblicuas que permiten una mejor representación de relaciones entre fenómenos.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>valoraciones_fa <span class="ot">&lt;-</span> <span class="fu">fa</span>(<span class="at">r =</span> datos_fa, <span class="at">nfactors =</span> <span class="dv">3</span>,, <span class="at">fm =</span><span class="st">'gls'</span>, <span class="at">rotate =</span><span class="st">'promax'</span>, <span class="at">scores=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Los tres factores elegidos explican el 87% de la varianza total, siendo además el factor 2 y 3 similares respecto a la proporción de varianza explicada.</p>
+<p>Como se pide en el enunicado, se presenta una tabla con la comunalidad y especificidad de cada variable.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>comunalidades <span class="ot">&lt;-</span> valoraciones_fa<span class="sc">$</span>communality</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>especificidades <span class="ot">&lt;-</span> valoraciones_fa<span class="sc">$</span>uniquenesses</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>tabla_varianzas <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">Variable      =</span> <span class="fu">names</span>(comunalidades),</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">Comunalidad_h2 =</span> <span class="fu">round</span>(comunalidades, <span class="dv">4</span>),</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">Especificidad_u2 =</span> <span class="fu">round</span>(especificidades, <span class="dv">4</span>)</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(tabla_varianzas, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>            Variable Comunalidad_h2 Especificidad_u2
+ estado_habitaciones         0.7780           0.2220
+              comida         0.8531           0.1469
+     atencion_no_san         0.9267           0.0733
+       atencion_auxi         0.9206           0.0794
+     atencion_enferm         0.9124           0.0876
+        atencion_med         0.8647           0.1353
+       info_recibida         0.8410           0.1590</code></pre>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(valoraciones_fa)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Factor Analysis using method =  gls
+Call: fa(r = datos_fa, nfactors = 3, rotate = "promax", scores = TRUE, 
+    fm = "gls")
+Standardized loadings (pattern matrix) based upon correlation matrix
+                     GLS1  GLS2  GLS3   h2    u2 com
+estado_habitaciones -0.17 -0.06  0.89 0.78 0.222 1.1
+comida               0.19  0.08  0.87 0.85 0.147 1.1
+atencion_no_san      0.96 -0.07  0.07 0.93 0.073 1.0
+atencion_auxi        0.96  0.02 -0.03 0.92 0.079 1.0
+atencion_enferm      0.96  0.02 -0.06 0.91 0.088 1.0
+atencion_med         0.00  0.93  0.00 0.86 0.135 1.0
+info_recibida       -0.03  0.92  0.00 0.84 0.159 1.0
+
+                      GLS1 GLS2 GLS3
+SS loadings           2.82 1.72 1.55
+Proportion Var        0.40 0.25 0.22
+Cumulative Var        0.40 0.65 0.87
+Proportion Explained  0.46 0.28 0.25
+Cumulative Proportion 0.46 0.75 1.00
+
+ With factor correlations of 
+     GLS1 GLS2 GLS3
+GLS1 1.00 0.09 0.06
+GLS2 0.09 1.00 0.27
+GLS3 0.06 0.27 1.00
+
+Mean item complexity =  1
+Test of the hypothesis that 3 factors are sufficient.
+
+df null model =  21  with the objective function =  6.98 with Chi Square =  668.51
+df of  the model are 3  and the objective function was  0.74 
+
+The root mean square of the residuals (RMSR) is  0.03 
+The df corrected root mean square of the residuals is  0.07 
+
+The harmonic n.obs is  100 with the empirical chi square  1.65  with prob &lt;  0.65 
+The total n.obs was  100  with Likelihood Chi Square =  69.46  with prob &lt;  0.0000000000000056 
+
+Tucker Lewis Index of factoring reliability =  0.266
+RMSEA index =  0.471  and the 90 % confidence intervals are  0.38 0.573
+BIC =  55.64
+Fit based upon off diagonal values = 1
+Measures of factor score adequacy             
+                                                  GLS1 GLS2 GLS3
+Correlation of (regression) scores with factors   0.99 0.95 0.94
+Multiple R square of scores with factors          0.97 0.91 0.87
+Minimum correlation of possible factor scores     0.94 0.81 0.75</code></pre>
+</div>
+</div>
+<p>La interpretación de los factores obtenidos es la siguiente:</p>
+<ul>
+<li><p><strong>Factor 1</strong>: representa la atención recibida por el personal a excepción de los médicos. Altas puntuaciones en este factor significan que la atención recibida se percibió como buena.</p></li>
+<li><p><strong>Factor 2</strong>: representa la atención recibida exclusivamente por los médicos, junto con la información facilitada. Altas puntuaciones en este factor se relacionan con una buena atención y con una percepción de que la información facilitada por los médicos fue clara y suficiente.</p></li>
+<li><p><strong>Factor 3</strong>: representa las instalaciones y servicios del hospital. Altas puntuaciones en este factor significan que la comida y el estado de las habitaciones se percibió como bueno.</p></li>
+</ul>
+<p>Respecto a las variables incluidas en el modelo, se captura la mayoría de sus varianzas. En variables como la atención no sanitaria y la atención auxiliar, el modelo captura el 93% y el 92% respectvamente de su varianza. El estado de las habitaciones es la variable con menor varianza capturada (78%), aunque sigue siendo muy alta.</p>
+<p>Atendiendo a la Complejidad de Hofmann, todos los valores son muy cercanos a 1, por lo que las variables se asocian casi por completo a un único factor.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Se extraen los scores</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>scores <span class="ot">&lt;-</span> valoraciones_fa<span class="sc">$</span>scores</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Se grafica la relación entre los factores mediante un biplot.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Se extraen los scores (observaciones) y las cargas (variables)</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>df_scores <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(valoraciones_fa<span class="sc">$</span>scores[, <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>)])</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(df_scores) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">'Factor1'</span>, <span class="st">'Factor2'</span>)</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>df_scores<span class="sc">$</span>id <span class="ot">&lt;-</span> <span class="fu">rownames</span>(df_scores) <span class="co"># Se guarda el identificador de los puntos</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>df_loadings <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">as.matrix</span>(valoraciones_fa<span class="sc">$</span>loadings[, <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>)]))</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(df_loadings) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">'Factor1'</span>, <span class="st">'Factor2'</span>)</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>df_loadings<span class="sc">$</span>variable <span class="ot">&lt;-</span> <span class="fu">rownames</span>(df_loadings)</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Se define un factor de escala para que las flechas visualmente coincidan con los puntos</span></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>escala <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">abs</span>(df_scores[, <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>])) <span class="sc">/</span> <span class="fu">max</span>(<span class="fu">abs</span>(df_loadings[, <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>])) <span class="sc">*</span> <span class="fl">0.7</span></span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>df_loadings<span class="sc">$</span>Factor1_scaled <span class="ot">&lt;-</span> df_loadings<span class="sc">$</span>Factor1 <span class="sc">*</span> escala</span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>df_loadings<span class="sc">$</span>Factor2_scaled <span class="ot">&lt;-</span> df_loadings<span class="sc">$</span>Factor2 <span class="sc">*</span> escala</span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Capa de observaciones (puntos e identificadores con repel)</span></span>
+<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> df_scores, <span class="fu">aes</span>(<span class="at">x =</span> Factor1, <span class="at">y =</span> Factor2), <span class="at">color =</span> <span class="st">'darkgray'</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text_repel</span>(</span>
+<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> df_scores, </span>
+<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">x =</span> Factor1, <span class="at">y =</span> Factor2, <span class="at">label =</span> id),</span>
+<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">'darkgray'</span>,</span>
+<span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="fl">2.8</span>,</span>
+<span id="cb32-23"><a href="#cb32-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">max.overlaps =</span> <span class="cn">Inf</span>,</span>
+<span id="cb32-24"><a href="#cb32-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">box.padding =</span> <span class="fl">0.3</span>,</span>
+<span id="cb32-25"><a href="#cb32-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">point.padding =</span> <span class="fl">0.2</span>,</span>
+<span id="cb32-26"><a href="#cb32-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">segment.color =</span> <span class="st">'grey50'</span>,</span>
+<span id="cb32-27"><a href="#cb32-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">segment.size =</span> <span class="fl">0.2</span></span>
+<span id="cb32-28"><a href="#cb32-28" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb32-29"><a href="#cb32-29" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Capa de variables (flechas y etiquetas con repel)</span></span>
+<span id="cb32-30"><a href="#cb32-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(</span>
+<span id="cb32-31"><a href="#cb32-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> df_loadings, </span>
+<span id="cb32-32"><a href="#cb32-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">x =</span> <span class="dv">0</span>, <span class="at">y =</span> <span class="dv">0</span>, <span class="at">xend =</span> Factor1_scaled, <span class="at">yend =</span> Factor2_scaled),</span>
+<span id="cb32-33"><a href="#cb32-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="fl">0.2</span>, <span class="st">'cm'</span>)), </span>
+<span id="cb32-34"><a href="#cb32-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">'red'</span></span>
+<span id="cb32-35"><a href="#cb32-35" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb32-36"><a href="#cb32-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text_repel</span>(</span>
+<span id="cb32-37"><a href="#cb32-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> df_loadings, </span>
+<span id="cb32-38"><a href="#cb32-38" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">x =</span> Factor1_scaled, <span class="at">y =</span> Factor2_scaled, <span class="at">label =</span> variable),</span>
+<span id="cb32-39"><a href="#cb32-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">'red'</span>,</span>
+<span id="cb32-40"><a href="#cb32-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">fontface =</span> <span class="st">'bold'</span>,</span>
+<span id="cb32-41"><a href="#cb32-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">max.overlaps =</span> <span class="cn">Inf</span></span>
+<span id="cb32-42"><a href="#cb32-42" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb32-43"><a href="#cb32-43" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Estética y títulos</span></span>
+<span id="cb32-44"><a href="#cb32-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">'Factor 1 vs Factor 2'</span>, <span class="at">x =</span> <span class="st">'Factor 1'</span>, <span class="at">y =</span> <span class="st">'Factor 2'</span>) <span class="sc">+</span></span>
+<span id="cb32-45"><a href="#cb32-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Miguel_Cabestrero_Analisis_multivariante_practica_files/figure-html/unnamed-chunk-19-1.png" class="quarto-figure quarto-figure-center figure-img" style="width:100.0%;height:80.0%"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Se extraen los scores de las columnas 1 y 3</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>df_scores_13 <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(valoraciones_fa<span class="sc">$</span>scores[, <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>)])</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(df_scores_13) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">'Factor1'</span>, <span class="st">'Factor3'</span>)</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>df_scores_13<span class="sc">$</span>id <span class="ot">&lt;-</span> <span class="fu">rownames</span>(df_scores_13)</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Se extraen las cargas (loadings) de las columnas 1 y 3</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>df_loadings_13 <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">as.matrix</span>(valoraciones_fa<span class="sc">$</span>loadings[, <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>)]))</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(df_loadings_13) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">'Factor1'</span>, <span class="st">'Factor3'</span>)</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>df_loadings_13<span class="sc">$</span>variable <span class="ot">&lt;-</span> <span class="fu">rownames</span>(df_loadings_13)</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Se calcula el factor de escala para las flechas</span></span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>escala_13 <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">abs</span>(df_scores_13[, <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>])) <span class="sc">/</span> <span class="fu">max</span>(<span class="fu">abs</span>(df_loadings_13[, <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>])) <span class="sc">*</span> <span class="fl">0.7</span></span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>df_loadings_13<span class="sc">$</span>Factor1_scaled <span class="ot">&lt;-</span> df_loadings_13<span class="sc">$</span>Factor1 <span class="sc">*</span> escala_13</span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>df_loadings_13<span class="sc">$</span>Factor3_scaled <span class="ot">&lt;-</span> df_loadings_13<span class="sc">$</span>Factor3 <span class="sc">*</span> escala_13</span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Creación del gráfico 1 vs 3</span></span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> df_scores_13, <span class="fu">aes</span>(<span class="at">x =</span> Factor1, <span class="at">y =</span> Factor3), <span class="at">color =</span> <span class="st">'darkgray'</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text_repel</span>(</span>
+<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> df_scores_13, </span>
+<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">x =</span> Factor1, <span class="at">y =</span> Factor3, <span class="at">label =</span> id),</span>
+<span id="cb33-22"><a href="#cb33-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">'darkgray'</span>, <span class="at">size =</span> <span class="fl">2.8</span>, <span class="at">max.overlaps =</span> <span class="cn">Inf</span>,</span>
+<span id="cb33-23"><a href="#cb33-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">box.padding =</span> <span class="fl">0.3</span>, <span class="at">point.padding =</span> <span class="fl">0.2</span>, <span class="at">segment.color =</span> <span class="st">'grey50'</span>, <span class="at">segment.size =</span> <span class="fl">0.2</span></span>
+<span id="cb33-24"><a href="#cb33-24" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb33-25"><a href="#cb33-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(</span>
+<span id="cb33-26"><a href="#cb33-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> df_loadings_13, </span>
+<span id="cb33-27"><a href="#cb33-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">x =</span> <span class="dv">0</span>, <span class="at">y =</span> <span class="dv">0</span>, <span class="at">xend =</span> Factor1_scaled, <span class="at">yend =</span> Factor3_scaled),</span>
+<span id="cb33-28"><a href="#cb33-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="fl">0.2</span>, <span class="st">'cm'</span>)), <span class="at">color =</span> <span class="st">'red'</span></span>
+<span id="cb33-29"><a href="#cb33-29" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb33-30"><a href="#cb33-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text_repel</span>(</span>
+<span id="cb33-31"><a href="#cb33-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> df_loadings_13, </span>
+<span id="cb33-32"><a href="#cb33-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">x =</span> Factor1_scaled, <span class="at">y =</span> Factor3_scaled, <span class="at">label =</span> variable),</span>
+<span id="cb33-33"><a href="#cb33-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">'red'</span>, <span class="at">fontface =</span> <span class="st">'bold'</span>, <span class="at">max.overlaps =</span> <span class="cn">Inf</span></span>
+<span id="cb33-34"><a href="#cb33-34" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb33-35"><a href="#cb33-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">'Factor 1 vs Factor 3'</span>, <span class="at">x =</span> <span class="st">'Factor 1'</span>, <span class="at">y =</span> <span class="st">'Factor 3'</span>) <span class="sc">+</span></span>
+<span id="cb33-36"><a href="#cb33-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Miguel_Cabestrero_Analisis_multivariante_practica_files/figure-html/unnamed-chunk-19-2.png" class="quarto-figure quarto-figure-center figure-img" style="width:100.0%;height:80.0%"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Factor 2 vs Factor 3 ---</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Se extraen los scores de las columnas 2 y 3</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>df_scores_23 <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(valoraciones_fa<span class="sc">$</span>scores[, <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">3</span>)])</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(df_scores_23) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">'Factor2'</span>, <span class="st">'Factor3'</span>)</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>df_scores_23<span class="sc">$</span>id <span class="ot">&lt;-</span> <span class="fu">rownames</span>(df_scores_23)</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Se extraen las cargas (loadings) de las columnas 2 y 3</span></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>df_loadings_23 <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">as.matrix</span>(valoraciones_fa<span class="sc">$</span>loadings[, <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">3</span>)]))</span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(df_loadings_23) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">'Factor2'</span>, <span class="st">'Factor3'</span>)</span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>df_loadings_23<span class="sc">$</span>variable <span class="ot">&lt;-</span> <span class="fu">rownames</span>(df_loadings_23)</span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Se calcula el factor de escala para las flechas</span></span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a>escala_23 <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">abs</span>(df_scores_23[, <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>])) <span class="sc">/</span> <span class="fu">max</span>(<span class="fu">abs</span>(df_loadings_23[, <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>])) <span class="sc">*</span> <span class="fl">0.7</span></span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a>df_loadings_23<span class="sc">$</span>Factor2_scaled <span class="ot">&lt;-</span> df_loadings_23<span class="sc">$</span>Factor2 <span class="sc">*</span> escala_23</span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a>df_loadings_23<span class="sc">$</span>Factor3_scaled <span class="ot">&lt;-</span> df_loadings_23<span class="sc">$</span>Factor3 <span class="sc">*</span> escala_23</span>
+<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Creación del gráfico 2 vs 3</span></span>
+<span id="cb34-19"><a href="#cb34-19" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb34-20"><a href="#cb34-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> df_scores_23, <span class="fu">aes</span>(<span class="at">x =</span> Factor2, <span class="at">y =</span> Factor3), <span class="at">color =</span> <span class="st">'darkgray'</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb34-21"><a href="#cb34-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text_repel</span>(</span>
+<span id="cb34-22"><a href="#cb34-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> df_scores_23, </span>
+<span id="cb34-23"><a href="#cb34-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">x =</span> Factor2, <span class="at">y =</span> Factor3, <span class="at">label =</span> id),</span>
+<span id="cb34-24"><a href="#cb34-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">'darkgray'</span>, <span class="at">size =</span> <span class="fl">2.8</span>, <span class="at">max.overlaps =</span> <span class="cn">Inf</span>,</span>
+<span id="cb34-25"><a href="#cb34-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">box.padding =</span> <span class="fl">0.3</span>, <span class="at">point.padding =</span> <span class="fl">0.2</span>, <span class="at">segment.color =</span> <span class="st">'grey50'</span>, <span class="at">segment.size =</span> <span class="fl">0.2</span></span>
+<span id="cb34-26"><a href="#cb34-26" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb34-27"><a href="#cb34-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(</span>
+<span id="cb34-28"><a href="#cb34-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> df_loadings_23, </span>
+<span id="cb34-29"><a href="#cb34-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">x =</span> <span class="dv">0</span>, <span class="at">y =</span> <span class="dv">0</span>, <span class="at">xend =</span> Factor2_scaled, <span class="at">yend =</span> Factor3_scaled),</span>
+<span id="cb34-30"><a href="#cb34-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="fl">0.2</span>, <span class="st">'cm'</span>)), <span class="at">color =</span> <span class="st">'red'</span></span>
+<span id="cb34-31"><a href="#cb34-31" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb34-32"><a href="#cb34-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text_repel</span>(</span>
+<span id="cb34-33"><a href="#cb34-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> df_loadings_23, </span>
+<span id="cb34-34"><a href="#cb34-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">x =</span> Factor2_scaled, <span class="at">y =</span> Factor3_scaled, <span class="at">label =</span> variable),</span>
+<span id="cb34-35"><a href="#cb34-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">'red'</span>, <span class="at">fontface =</span> <span class="st">'bold'</span>, <span class="at">max.overlaps =</span> <span class="cn">Inf</span></span>
+<span id="cb34-36"><a href="#cb34-36" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb34-37"><a href="#cb34-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">'Factor 2 vs Factor 3'</span>, <span class="at">x =</span> <span class="st">'Factor 2'</span>, <span class="at">y =</span> <span class="st">'Factor 3'</span>) <span class="sc">+</span></span>
+<span id="cb34-38"><a href="#cb34-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Miguel_Cabestrero_Analisis_multivariante_practica_files/figure-html/unnamed-chunk-19-3.png" class="quarto-figure quarto-figure-center figure-img" style="width:100.0%;height:80.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>A partir de los gráficos biplot generados, se confirman de manera visual las conclusiones extraídas previamente en el análisis descriptivo. Se observa que las variables que componen cada factor presentan cargas altamente significativas y actúan en una misma dirección dentro de sus respectivas dimensiones.</p>
+<p>En cuanto a las relaciones interfactoriales, destaca una marcada independencia estructural. Las variables más relevantes de cada dimensión carecen de un efecto o proyección significativa sobre las demás, lo que demuestra que la gran mayoría de la variabilidad de cada indicador queda recogida de forma limpia en un único factor. La única excepción marginal se aprecia entre el Factor 1 y el Factor 3; las variables del bloque de infraestructura, ‘comida’ y ‘estado_habitaciones’, registran un peso secundario residual en el primer factor (con cargas de 0.19 y -0.17, respectivamente).</p>
+<p>Con las puntuaciones obtenidas para los factores, se comprueba si existen diferencias en las valoraciones entre sexos y entre el tipo de asistencia recibida.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Se extrae la varianza explicada de cada factor</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>ss_loadings <span class="ot">&lt;-</span> valoraciones_fa<span class="sc">$</span>Vaccounted[<span class="st">'SS loadings'</span>, ]</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Se calculan los pesos relativos de forma que sumen 1</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>pesos <span class="ot">&lt;-</span> ss_loadings <span class="sc">/</span> <span class="fu">sum</span>(ss_loadings)</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Se muestran los pesos en consola para comprobar la importancia de cada factor</span></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="st">'--- Pesos de ponderación de cada factor ---'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "--- Pesos de ponderación de cada factor ---"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">round</span>(pesos, <span class="dv">4</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  GLS1   GLS2   GLS3 
+0.4629 0.2827 0.2544 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Se calcula la puntuación global ponderada mediante multiplicación matricial</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>puntuacion_global_ponderada <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(scores) <span class="sc">%*%</span> pesos</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a><span class="co"># se integra la nueva variable en el dataset completo</span></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>datos_completos <span class="ot">&lt;-</span> <span class="fu">cbind</span>(datos_hospital, <span class="at">Puntuacion_Global =</span> puntuacion_global_ponderada)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Una vez añadidias las scores ponderaradas para cada paciente, se procede al análisis descriptivo.</p>
+<p>Pero antes se realiza una pequeña modificación en los nombres de las categorías de asistencia sanitaria para facilitar la interpretación.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>datos_completos <span class="ot">&lt;-</span> datos_completos <span class="sc">%&gt;%</span> </span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">D =</span> <span class="fu">case_when</span>(</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>    D <span class="sc">==</span> <span class="st">'1'</span> <span class="sc">~</span> <span class="st">'Medicina interna'</span>,</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>    D <span class="sc">==</span> <span class="st">'2'</span> <span class="sc">~</span> <span class="st">'Traumatología'</span>,</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>    D <span class="sc">==</span> <span class="st">'3'</span> <span class="sc">~</span> <span class="st">'Urología'</span>,</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>    D <span class="sc">==</span> <span class="st">'4'</span> <span class="sc">~</span> <span class="st">'Oftalmología'</span></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>  ))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>descriptivos_sexo <span class="ot">&lt;-</span> datos_completos <span class="sc">%&gt;%</span> </span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">group_by</span>(S) <span class="sc">%&gt;%</span> </span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">summarise</span>(</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Casos        =</span> <span class="fu">n</span>(),</span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Media        =</span> <span class="fu">round</span>(<span class="fu">mean</span>(Puntuacion_Global, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="dv">4</span>),</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">Desv_Tipica  =</span> <span class="fu">round</span>(<span class="fu">sd</span>(Puntuacion_Global, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="dv">4</span>),</span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">Mediana      =</span> <span class="fu">round</span>(<span class="fu">median</span>(Puntuacion_Global, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="dv">4</span>),</span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">Minimo       =</span> <span class="fu">round</span>(<span class="fu">min</span>(Puntuacion_Global, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="dv">4</span>),</span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">Maximo       =</span> <span class="fu">round</span>(<span class="fu">max</span>(Puntuacion_Global, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="dv">4</span>)</span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="st">'--- Resumen Descriptivo por Sexo ---'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "--- Resumen Descriptivo por Sexo ---"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(descriptivos_sexo)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 7
+  S     Casos   Media Desv_Tipica Mediana Minimo Maximo
+  &lt;chr&gt; &lt;int&gt;   &lt;dbl&gt;       &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
+1 h        48  0.0732       0.620  -0.027 -0.932   1.00
+2 m        52 -0.0675       0.667  -0.139 -1.05    1.35</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Análisis estadístico descriptivo según el Tipo de Servicio Hospitalario</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Se debe reemplazar 'servicio' por el nombre exacto de la columna en el dataset</span></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>descriptivos_servicio <span class="ot">&lt;-</span> datos_completos <span class="sc">%&gt;%</span> </span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">group_by</span>(D) <span class="sc">%&gt;%</span> </span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">summarise</span>(</span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">Casos        =</span> <span class="fu">n</span>(),</span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">Media        =</span> <span class="fu">round</span>(<span class="fu">mean</span>(Puntuacion_Global, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="dv">4</span>),</span>
+<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">Desv_Tipica  =</span> <span class="fu">round</span>(<span class="fu">sd</span>(Puntuacion_Global, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="dv">4</span>),</span>
+<span id="cb45-9"><a href="#cb45-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">Mediana      =</span> <span class="fu">round</span>(<span class="fu">median</span>(Puntuacion_Global, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="dv">4</span>),</span>
+<span id="cb45-10"><a href="#cb45-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">Minimo       =</span> <span class="fu">round</span>(<span class="fu">min</span>(Puntuacion_Global, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="dv">4</span>),</span>
+<span id="cb45-11"><a href="#cb45-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">Maximo       =</span> <span class="fu">round</span>(<span class="fu">max</span>(Puntuacion_Global, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="dv">4</span>)</span>
+<span id="cb45-12"><a href="#cb45-12" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb45-13"><a href="#cb45-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-14"><a href="#cb45-14" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="st">'--- Resumen Descriptivo por Tipo de Servicio ---'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "--- Resumen Descriptivo por Tipo de Servicio ---"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(descriptivos_servicio)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 7
+  D                Casos   Media Desv_Tipica Mediana Minimo Maximo
+  &lt;chr&gt;            &lt;int&gt;   &lt;dbl&gt;       &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
+1 Medicina interna    27  0.0968       0.678 -0.027  -1.05   1.35 
+2 Oftalmología        23  0.219        0.488 -0.0479 -0.224  1.00 
+3 Traumatología       28  0.0587       0.684 -0.0968 -1.05   1.35 
+4 Urología            22 -0.422        0.536 -0.438  -1.05   0.739</code></pre>
+</div>
+</div>
+<p>El análisis descriptivo referente a las valoraciones en función del sexo, se puede apreciar que los hombres valoraron la experiencia global de la hospitalización ligeramente por encima de las mujeres.</p>
+<p>En relación con el tipo de asistencia recibida, el servicio de Oftalmología registró la mayor satisfacción media (0.2190), destacando además por presentar la menor dispersión en las respuestas (Desv_Tipica = 0.488). En el extremo opuesto se situaron los pacientes de Urología, quienes valoraron su experiencia de forma notablemente más negativa, con una media de -0.4220 que se distancia considerablemente del promedio global del hospital. Por su parte, Medicina Interna y Traumatología mantuvieron niveles de satisfacción intermedios y muy cercanos entre sí.</p>
+</section>
+<section id="ejercicio-3-escalamiento-multidimensional" class="level1">
+<h1>Ejercicio 3: Escalamiento multidimensional</h1>
+<p>El fichero socioecconomica.xlsx contiene información sobre la evolución del paro en la provincia de Cantabria desde el año 2005 hasta el primer trimestre de 2020.</p>
+<p>Seleccione las tasas de paro y evalúe la similitud en la evolución de las series a través de un escalamiento multidimensional no métrico.</p>
+<p>Se cargan los datos</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>datos_socioeconomicos <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">'datos_socioeconomica.xlsx'</span>)</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(datos_socioeconomicos)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 18
+    Ano Trimestre `Hombres.16-24` `Hombres.25-54` `Hombres.55-64` Hombres.Total
+  &lt;dbl&gt;     &lt;dbl&gt;           &lt;dbl&gt;           &lt;dbl&gt;           &lt;dbl&gt;         &lt;dbl&gt;
+1  2005         1           16.1             6.09            4.31          6.92
+2  2005         2           13.3             5.55            4.71          6.15
+3  2005         3           12.9             5.19            4.94          5.99
+4  2005         4           15.4             4.91            6.48          6.08
+5  2006         1           13.6             3.97            4.53          4.91
+6  2006         2            9.92            2.87            5.58          3.81
+# ℹ 12 more variables: `Mujeres.16-24` &lt;dbl&gt;, `Mujeres.25-54` &lt;dbl&gt;,
+#   `Mujeres.55-64` &lt;dbl&gt;, Mujeres.Total &lt;dbl&gt;, `Total.16-24` &lt;dbl&gt;,
+#   `Total.25-54` &lt;dbl&gt;, `Total.55-64` &lt;dbl&gt;, Total.Total &lt;dbl&gt;,
+#   Total.Jovenes &lt;dbl&gt;, `Total.No cualificadas` &lt;dbl&gt;,
+#   `Parados Larga Duracion.16-67` &lt;dbl&gt;,
+#   `Parados Larga Duracion.Jovenes` &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">skim</span>(datos_socioeconomicos) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Name</td>
+<td style="text-align: left;">datos_socioeconomicos</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Number of rows</td>
+<td style="text-align: left;">61</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Number of columns</td>
+<td style="text-align: left;">18</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">_______________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Column type frequency:</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">18</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">________________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Group variables</td>
+<td style="text-align: left;">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: numeric</strong></p>
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 8%">
+<col style="width: 11%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 4%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">mean</th>
+<th style="text-align: right;">sd</th>
+<th style="text-align: right;">p0</th>
+<th style="text-align: right;">p25</th>
+<th style="text-align: right;">p50</th>
+<th style="text-align: right;">p75</th>
+<th style="text-align: right;">p100</th>
+<th style="text-align: left;">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Ano</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2012.13</td>
+<td style="text-align: right;">4.44</td>
+<td style="text-align: right;">2005.00</td>
+<td style="text-align: right;">2008.00</td>
+<td style="text-align: right;">2012.00</td>
+<td style="text-align: right;">2016.00</td>
+<td style="text-align: right;">2020.00</td>
+<td style="text-align: left;">▇▆▆▆▅</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Trimestre</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2.48</td>
+<td style="text-align: right;">1.13</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2.00</td>
+<td style="text-align: right;">3.00</td>
+<td style="text-align: right;">4.00</td>
+<td style="text-align: left;">▇▇▁▇▇</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Hombres.16-24</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">32.11</td>
+<td style="text-align: right;">15.61</td>
+<td style="text-align: right;">5.08</td>
+<td style="text-align: right;">18.52</td>
+<td style="text-align: right;">33.69</td>
+<td style="text-align: right;">41.68</td>
+<td style="text-align: right;">65.31</td>
+<td style="text-align: left;">▇▆▇▆▃</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Hombres.25-54</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">11.44</td>
+<td style="text-align: right;">5.20</td>
+<td style="text-align: right;">2.87</td>
+<td style="text-align: right;">7.84</td>
+<td style="text-align: right;">11.69</td>
+<td style="text-align: right;">15.60</td>
+<td style="text-align: right;">20.87</td>
+<td style="text-align: left;">▇▅▇▇▅</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Hombres.55-64</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">9.07</td>
+<td style="text-align: right;">4.67</td>
+<td style="text-align: right;">0.41</td>
+<td style="text-align: right;">4.94</td>
+<td style="text-align: right;">8.69</td>
+<td style="text-align: right;">12.91</td>
+<td style="text-align: right;">19.84</td>
+<td style="text-align: left;">▆▇▆▇▂</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Hombres.Total</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">12.21</td>
+<td style="text-align: right;">5.39</td>
+<td style="text-align: right;">3.33</td>
+<td style="text-align: right;">7.93</td>
+<td style="text-align: right;">12.67</td>
+<td style="text-align: right;">16.50</td>
+<td style="text-align: right;">21.79</td>
+<td style="text-align: left;">▇▅▇▅▆</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mujeres.16-24</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">33.52</td>
+<td style="text-align: right;">10.21</td>
+<td style="text-align: right;">16.31</td>
+<td style="text-align: right;">24.72</td>
+<td style="text-align: right;">33.45</td>
+<td style="text-align: right;">41.73</td>
+<td style="text-align: right;">52.26</td>
+<td style="text-align: left;">▇▇▆▇▆</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mujeres.25-54</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">13.40</td>
+<td style="text-align: right;">4.53</td>
+<td style="text-align: right;">5.39</td>
+<td style="text-align: right;">9.41</td>
+<td style="text-align: right;">12.87</td>
+<td style="text-align: right;">16.83</td>
+<td style="text-align: right;">22.78</td>
+<td style="text-align: left;">▅▇▇▅▃</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mujeres.55-64</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">7.95</td>
+<td style="text-align: right;">3.45</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">5.46</td>
+<td style="text-align: right;">8.51</td>
+<td style="text-align: right;">10.41</td>
+<td style="text-align: right;">13.91</td>
+<td style="text-align: left;">▂▅▆▇▆</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mujeres.Total</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">13.95</td>
+<td style="text-align: right;">4.09</td>
+<td style="text-align: right;">6.62</td>
+<td style="text-align: right;">10.35</td>
+<td style="text-align: right;">13.40</td>
+<td style="text-align: right;">16.72</td>
+<td style="text-align: right;">23.14</td>
+<td style="text-align: left;">▆▇▇▅▃</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Total.16-24</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">32.76</td>
+<td style="text-align: right;">12.10</td>
+<td style="text-align: right;">10.75</td>
+<td style="text-align: right;">22.64</td>
+<td style="text-align: right;">34.31</td>
+<td style="text-align: right;">41.82</td>
+<td style="text-align: right;">56.16</td>
+<td style="text-align: left;">▆▃▇▇▃</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Total.25-54</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">12.32</td>
+<td style="text-align: right;">4.78</td>
+<td style="text-align: right;">4.67</td>
+<td style="text-align: right;">8.41</td>
+<td style="text-align: right;">12.01</td>
+<td style="text-align: right;">16.17</td>
+<td style="text-align: right;">21.55</td>
+<td style="text-align: left;">▇▇▇▆▅</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Total.55-64</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">8.59</td>
+<td style="text-align: right;">3.88</td>
+<td style="text-align: right;">1.19</td>
+<td style="text-align: right;">4.91</td>
+<td style="text-align: right;">9.24</td>
+<td style="text-align: right;">11.34</td>
+<td style="text-align: right;">16.71</td>
+<td style="text-align: left;">▆▆▇▇▃</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Total.Total</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">12.97</td>
+<td style="text-align: right;">4.74</td>
+<td style="text-align: right;">4.76</td>
+<td style="text-align: right;">9.04</td>
+<td style="text-align: right;">12.72</td>
+<td style="text-align: right;">16.36</td>
+<td style="text-align: right;">22.41</td>
+<td style="text-align: left;">▆▆▇▆▅</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Total.Jovenes</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">23.93</td>
+<td style="text-align: right;">9.13</td>
+<td style="text-align: right;">6.08</td>
+<td style="text-align: right;">16.37</td>
+<td style="text-align: right;">24.45</td>
+<td style="text-align: right;">30.12</td>
+<td style="text-align: right;">40.87</td>
+<td style="text-align: left;">▆▃▇▇▃</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Total.No cualificadas</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">12.66</td>
+<td style="text-align: right;">4.31</td>
+<td style="text-align: right;">5.20</td>
+<td style="text-align: right;">8.99</td>
+<td style="text-align: right;">13.03</td>
+<td style="text-align: right;">15.59</td>
+<td style="text-align: right;">22.89</td>
+<td style="text-align: left;">▆▇▇▆▂</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Parados Larga Duracion.16-67</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">16566.22</td>
+<td style="text-align: right;">10010.90</td>
+<td style="text-align: right;">2652.65</td>
+<td style="text-align: right;">7245.35</td>
+<td style="text-align: right;">16176.74</td>
+<td style="text-align: right;">24226.19</td>
+<td style="text-align: right;">34546.86</td>
+<td style="text-align: left;">▇▆▆▃▅</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Parados Larga Duracion.Jovenes</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3385.13</td>
+<td style="text-align: right;">2132.91</td>
+<td style="text-align: right;">114.35</td>
+<td style="text-align: right;">1543.36</td>
+<td style="text-align: right;">3663.15</td>
+<td style="text-align: right;">5056.29</td>
+<td style="text-align: right;">7755.04</td>
+<td style="text-align: left;">▇▅▇▅▂</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Para realizar el análisis se crea una nueva variable que auna el año y trimestre para utilizarla como etiqueta en el análisis gráfico. Sin embargo, se eliminan las variables temporales originales y las variables de datos absolutos para mantener la interpretabilidad de los datos.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>datos_socioeconomicos <span class="ot">&lt;-</span> datos_socioeconomicos <span class="sc">%&gt;%</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unite</span>(<span class="at">col =</span> <span class="st">'periodo'</span>, Ano, Trimestre, <span class="at">sep =</span> <span class="st">'_'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(datos_socioeconomicos)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 17
+  periodo `Hombres.16-24` `Hombres.25-54` `Hombres.55-64` Hombres.Total
+  &lt;chr&gt;             &lt;dbl&gt;           &lt;dbl&gt;           &lt;dbl&gt;         &lt;dbl&gt;
+1 2005_1            16.1             6.09            4.31          6.92
+2 2005_2            13.3             5.55            4.71          6.15
+3 2005_3            12.9             5.19            4.94          5.99
+4 2005_4            15.4             4.91            6.48          6.08
+5 2006_1            13.6             3.97            4.53          4.91
+6 2006_2             9.92            2.87            5.58          3.81
+# ℹ 12 more variables: `Mujeres.16-24` &lt;dbl&gt;, `Mujeres.25-54` &lt;dbl&gt;,
+#   `Mujeres.55-64` &lt;dbl&gt;, Mujeres.Total &lt;dbl&gt;, `Total.16-24` &lt;dbl&gt;,
+#   `Total.25-54` &lt;dbl&gt;, `Total.55-64` &lt;dbl&gt;, Total.Total &lt;dbl&gt;,
+#   Total.Jovenes &lt;dbl&gt;, `Total.No cualificadas` &lt;dbl&gt;,
+#   `Parados Larga Duracion.16-67` &lt;dbl&gt;,
+#   `Parados Larga Duracion.Jovenes` &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>datos_mds <span class="ot">&lt;-</span> datos_socioeconomicos <span class="sc">%&gt;%</span> </span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>( <span class="sc">-</span><span class="st">'Parados Larga Duracion.16-67'</span>, <span class="sc">-</span><span class="st">'Parados Larga Duracion.Jovenes'</span>)</span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a>datos_numericos <span class="ot">&lt;-</span> datos_mds <span class="sc">%&gt;%</span> </span>
+<span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a>  tibble<span class="sc">::</span><span class="fu">column_to_rownames</span>(<span class="at">var =</span> <span class="st">'periodo'</span>)</span>
+<span id="cb55-6"><a href="#cb55-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb55-7"><a href="#cb55-7" aria-hidden="true" tabindex="-1"></a><span class="fu">skim</span>(datos_numericos)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Name</td>
+<td style="text-align: left;">datos_numericos</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Number of rows</td>
+<td style="text-align: left;">61</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Number of columns</td>
+<td style="text-align: left;">14</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">_______________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Column type frequency:</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">14</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">________________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Group variables</td>
+<td style="text-align: left;">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: numeric</strong></p>
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 23%">
+<col style="width: 10%">
+<col style="width: 14%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">mean</th>
+<th style="text-align: right;">sd</th>
+<th style="text-align: right;">p0</th>
+<th style="text-align: right;">p25</th>
+<th style="text-align: right;">p50</th>
+<th style="text-align: right;">p75</th>
+<th style="text-align: right;">p100</th>
+<th style="text-align: left;">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Hombres.16-24</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">32.11</td>
+<td style="text-align: right;">15.61</td>
+<td style="text-align: right;">5.08</td>
+<td style="text-align: right;">18.52</td>
+<td style="text-align: right;">33.69</td>
+<td style="text-align: right;">41.68</td>
+<td style="text-align: right;">65.31</td>
+<td style="text-align: left;">▇▆▇▆▃</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Hombres.25-54</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">11.44</td>
+<td style="text-align: right;">5.20</td>
+<td style="text-align: right;">2.87</td>
+<td style="text-align: right;">7.84</td>
+<td style="text-align: right;">11.69</td>
+<td style="text-align: right;">15.60</td>
+<td style="text-align: right;">20.87</td>
+<td style="text-align: left;">▇▅▇▇▅</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Hombres.55-64</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">9.07</td>
+<td style="text-align: right;">4.67</td>
+<td style="text-align: right;">0.41</td>
+<td style="text-align: right;">4.94</td>
+<td style="text-align: right;">8.69</td>
+<td style="text-align: right;">12.91</td>
+<td style="text-align: right;">19.84</td>
+<td style="text-align: left;">▆▇▆▇▂</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Hombres.Total</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">12.21</td>
+<td style="text-align: right;">5.39</td>
+<td style="text-align: right;">3.33</td>
+<td style="text-align: right;">7.93</td>
+<td style="text-align: right;">12.67</td>
+<td style="text-align: right;">16.50</td>
+<td style="text-align: right;">21.79</td>
+<td style="text-align: left;">▇▅▇▅▆</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mujeres.16-24</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">33.52</td>
+<td style="text-align: right;">10.21</td>
+<td style="text-align: right;">16.31</td>
+<td style="text-align: right;">24.72</td>
+<td style="text-align: right;">33.45</td>
+<td style="text-align: right;">41.73</td>
+<td style="text-align: right;">52.26</td>
+<td style="text-align: left;">▇▇▆▇▆</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mujeres.25-54</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">13.40</td>
+<td style="text-align: right;">4.53</td>
+<td style="text-align: right;">5.39</td>
+<td style="text-align: right;">9.41</td>
+<td style="text-align: right;">12.87</td>
+<td style="text-align: right;">16.83</td>
+<td style="text-align: right;">22.78</td>
+<td style="text-align: left;">▅▇▇▅▃</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mujeres.55-64</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">7.95</td>
+<td style="text-align: right;">3.45</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">5.46</td>
+<td style="text-align: right;">8.51</td>
+<td style="text-align: right;">10.41</td>
+<td style="text-align: right;">13.91</td>
+<td style="text-align: left;">▂▅▆▇▆</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mujeres.Total</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">13.95</td>
+<td style="text-align: right;">4.09</td>
+<td style="text-align: right;">6.62</td>
+<td style="text-align: right;">10.35</td>
+<td style="text-align: right;">13.40</td>
+<td style="text-align: right;">16.72</td>
+<td style="text-align: right;">23.14</td>
+<td style="text-align: left;">▆▇▇▅▃</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Total.16-24</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">32.76</td>
+<td style="text-align: right;">12.10</td>
+<td style="text-align: right;">10.75</td>
+<td style="text-align: right;">22.64</td>
+<td style="text-align: right;">34.31</td>
+<td style="text-align: right;">41.82</td>
+<td style="text-align: right;">56.16</td>
+<td style="text-align: left;">▆▃▇▇▃</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Total.25-54</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">12.32</td>
+<td style="text-align: right;">4.78</td>
+<td style="text-align: right;">4.67</td>
+<td style="text-align: right;">8.41</td>
+<td style="text-align: right;">12.01</td>
+<td style="text-align: right;">16.17</td>
+<td style="text-align: right;">21.55</td>
+<td style="text-align: left;">▇▇▇▆▅</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Total.55-64</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">8.59</td>
+<td style="text-align: right;">3.88</td>
+<td style="text-align: right;">1.19</td>
+<td style="text-align: right;">4.91</td>
+<td style="text-align: right;">9.24</td>
+<td style="text-align: right;">11.34</td>
+<td style="text-align: right;">16.71</td>
+<td style="text-align: left;">▆▆▇▇▃</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Total.Total</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">12.97</td>
+<td style="text-align: right;">4.74</td>
+<td style="text-align: right;">4.76</td>
+<td style="text-align: right;">9.04</td>
+<td style="text-align: right;">12.72</td>
+<td style="text-align: right;">16.36</td>
+<td style="text-align: right;">22.41</td>
+<td style="text-align: left;">▆▆▇▆▅</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Total.Jovenes</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">23.93</td>
+<td style="text-align: right;">9.13</td>
+<td style="text-align: right;">6.08</td>
+<td style="text-align: right;">16.37</td>
+<td style="text-align: right;">24.45</td>
+<td style="text-align: right;">30.12</td>
+<td style="text-align: right;">40.87</td>
+<td style="text-align: left;">▆▃▇▇▃</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Total.No cualificadas</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">12.66</td>
+<td style="text-align: right;">4.31</td>
+<td style="text-align: right;">5.20</td>
+<td style="text-align: right;">8.99</td>
+<td style="text-align: right;">13.03</td>
+<td style="text-align: right;">15.59</td>
+<td style="text-align: right;">22.89</td>
+<td style="text-align: left;">▆▇▇▆▂</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Se realiza un análisis de la estrcutura de la relación entre variables mediante una matriz de correlación.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>matriz_corr <span class="ot">&lt;-</span> <span class="fu">cor</span>(datos_numericos)</span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a><span class="fu">corrplot</span>(matriz_corr, <span class="at">method =</span> <span class="st">'circle'</span>, <span class="at">type =</span> <span class="st">'upper'</span>, </span>
+<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">tl.col =</span> <span class="st">'black'</span>, <span class="at">tl.srt =</span> <span class="dv">45</span>, <span class="at">addCoef.col =</span> <span class="st">'white'</span>,</span>
+<span id="cb56-5"><a href="#cb56-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">number.cex =</span> <span class="fl">0.8</span>, <span class="at">main =</span> <span class="st">'Matriz de Correlación - Variables Económicas 1986'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Miguel_Cabestrero_Analisis_multivariante_practica_files/figure-html/unnamed-chunk-28-1.png" class="quarto-figure quarto-figure-center figure-img" style="width:100.0%;height:80.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Existe una gran correlación entre muchas de las variables, lo que indica la adecuación de este análisis.</p>
+<p>Se procede a crear el modelo.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>datos_numericos <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(datos_numericos)</span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">dist</span>(datos_numericos, <span class="at">method =</span> <span class="st">'euclidean'</span>)</span>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a>mds_no_metrico <span class="ot">&lt;-</span> <span class="fu">isoMDS</span>(d, <span class="at">k =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>initial  value 4.504147 
+iter   5 value 3.615807
+iter  10 value 3.506639
+iter  10 value 3.504379
+iter  10 value 3.502979
+final  value 3.502979 
+converged</code></pre>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Se extraen los puntos</span></span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>df_mapa_nometrico <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(mds_no_metrico<span class="sc">$</span>points)</span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(df_mapa_nometrico) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">'Dim1'</span>, <span class="st">'Dim2'</span>)</span>
+<span id="cb59-4"><a href="#cb59-4" aria-hidden="true" tabindex="-1"></a>df_mapa_nometrico<span class="sc">$</span>periodo <span class="ot">&lt;-</span> <span class="fu">rownames</span>(datos_numericos) <span class="co"># Se añaden los nombres de los estados</span></span>
+<span id="cb59-5"><a href="#cb59-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-6"><a href="#cb59-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-7"><a href="#cb59-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Se genera el gráfico con ggrepel</span></span>
+<span id="cb59-8"><a href="#cb59-8" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_mapa_nometrico, <span class="fu">aes</span>(<span class="at">x =</span> Dim1, <span class="at">y =</span> Dim2, <span class="at">label =</span> periodo)) <span class="sc">+</span></span>
+<span id="cb59-9"><a href="#cb59-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">'steelblue'</span>, <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb59-10"><a href="#cb59-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">#  geom_text_repel evita el solapamiento automáticamente</span></span>
+<span id="cb59-11"><a href="#cb59-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text_repel</span>(</span>
+<span id="cb59-12"><a href="#cb59-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="fl">2.8</span>,               </span>
+<span id="cb59-13"><a href="#cb59-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">max.overlaps =</span> <span class="cn">Inf</span>,          </span>
+<span id="cb59-14"><a href="#cb59-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">box.padding =</span> <span class="fl">0.3</span>,           </span>
+<span id="cb59-15"><a href="#cb59-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">point.padding =</span> <span class="fl">0.2</span>,         </span>
+<span id="cb59-16"><a href="#cb59-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">segment.color =</span> <span class="st">'grey50'</span>,   </span>
+<span id="cb59-17"><a href="#cb59-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">segment.size =</span> <span class="fl">0.2</span>          </span>
+<span id="cb59-18"><a href="#cb59-18" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb59-19"><a href="#cb59-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb59-20"><a href="#cb59-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb59-21"><a href="#cb59-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">'bold'</span>, <span class="at">size =</span> <span class="dv">14</span>, <span class="at">hjust =</span> <span class="fl">0.5</span>),</span>
+<span id="cb59-22"><a href="#cb59-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>()</span>
+<span id="cb59-23"><a href="#cb59-23" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb59-24"><a href="#cb59-24" aria-hidden="true" tabindex="-1"></a>p2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Miguel_Cabestrero_Analisis_multivariante_practica_files/figure-html/unnamed-chunk-30-1.png" class="quarto-figure quarto-figure-center figure-img" style="width:100.0%;height:80.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Cada dimensión tiene la siguiente interpretación:</p>
+<ul>
+<li><p>Dimensión 1: representa la cifra de paro total de la comunidad cantabra. Los valores situados más a la izquierda respresntan períodos de tasa de paro, mientras que los puntos más hacia la derecha representan tasas de altas de paro.</p></li>
+<li><p>Dimensión 2: respresenta la tasa de paro para jóvenes de entre 16 y 24 años según el sexo. Los puntos situados en el límite superior del plano son épocas donde el paro juvenil era porporcionalmente mayor en mujeres que en hombres, y por el contrario, puntos situados hacia abajo representan trimestres donde el paro juvenil de los hombres era mayor que el de mujeres.</p></li>
+</ul>
+</section>
+<section id="ejercicio-4-correlación-canónica" class="level1">
+<h1>Ejercicio 4: Correlación canónica</h1>
+<p>La base de datos MASS::Cars93 contiene una selección aleatoria de 93 modelos de automóviles de pasajeros de 1993 que se enumeraron tanto en la edición de Consumer Reports como en la guía de compras de PACE. Las camionetas y los vehículos deportivos/utilitarios fueron eliminados debido a la información incompleta en la fuente de Consumer Reports. Los modelos duplicados (por ejemplo, Dodge Shadow y Plymouth Sundance) se enumeraron como máximo una vez.</p>
+<p>Plantee un análisis de correlación canónica entre las variables asociadas a las características físicas de los vehículos (tamaño de motor, caballos de fuerza, longitud, distancia entre ejes, anchura, asiento trasero y peso) y las relativas al precio y el funcionamiento (precio medio, consumo en ciudad, consumo en carretera y espacio de giro en U).</p>
+<p>Con esta información se cargan los datos.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">'Cars93'</span>)</span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>datos_coches <span class="ot">&lt;-</span> Cars93</span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-5"><a href="#cb60-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(datos_coches)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Manufacturer   Model    Type Min.Price Price Max.Price MPG.city MPG.highway
+1        Acura Integra   Small      12.9  15.9      18.8       25          31
+2        Acura  Legend Midsize      29.2  33.9      38.7       18          25
+3         Audi      90 Compact      25.9  29.1      32.3       20          26
+4         Audi     100 Midsize      30.8  37.7      44.6       19          26
+5          BMW    535i Midsize      23.7  30.0      36.2       22          30
+6        Buick Century Midsize      14.2  15.7      17.3       22          31
+             AirBags DriveTrain Cylinders EngineSize Horsepower  RPM
+1               None      Front         4        1.8        140 6300
+2 Driver &amp; Passenger      Front         6        3.2        200 5500
+3        Driver only      Front         6        2.8        172 5500
+4 Driver &amp; Passenger      Front         6        2.8        172 5500
+5        Driver only       Rear         4        3.5        208 5700
+6        Driver only      Front         4        2.2        110 5200
+  Rev.per.mile Man.trans.avail Fuel.tank.capacity Passengers Length Wheelbase
+1         2890             Yes               13.2          5    177       102
+2         2335             Yes               18.0          5    195       115
+3         2280             Yes               16.9          5    180       102
+4         2535             Yes               21.1          6    193       106
+5         2545             Yes               21.1          4    186       109
+6         2565              No               16.4          6    189       105
+  Width Turn.circle Rear.seat.room Luggage.room Weight  Origin          Make
+1    68          37           26.5           11   2705 non-USA Acura Integra
+2    71          38           30.0           15   3560 non-USA  Acura Legend
+3    67          37           28.0           14   3375 non-USA       Audi 90
+4    70          37           31.0           17   3405 non-USA      Audi 100
+5    69          39           27.0           13   3640 non-USA      BMW 535i
+6    69          41           28.0           16   2880     USA Buick Century</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="fu">skim</span>(datos_coches)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Name</td>
+<td style="text-align: left;">datos_coches</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Number of rows</td>
+<td style="text-align: left;">93</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Number of columns</td>
+<td style="text-align: left;">27</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">_______________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Column type frequency:</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">factor</td>
+<td style="text-align: left;">9</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">18</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">________________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Group variables</td>
+<td style="text-align: left;">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: factor</strong></p>
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 17%">
+<col style="width: 10%">
+<col style="width: 15%">
+<col style="width: 8%">
+<col style="width: 9%">
+<col style="width: 38%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: left;">ordered</th>
+<th style="text-align: right;">n_unique</th>
+<th style="text-align: left;">top_counts</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Manufacturer</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: left;">Che: 8, For: 8, Dod: 6, Maz: 5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Model</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">93</td>
+<td style="text-align: left;">100: 1, 190: 1, 240: 1, 300: 1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Type</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: left;">Mid: 22, Sma: 21, Com: 16, Spo: 14</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">AirBags</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">Dri: 43, Non: 34, Dri: 16</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">DriveTrain</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">Fro: 67, Rea: 16, 4WD: 10</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Cylinders</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: left;">4: 49, 6: 31, 8: 7, 3: 3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Man.trans.avail</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">Yes: 61, No: 32</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Origin</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">USA: 48, non: 45</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Make</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">93</td>
+<td style="text-align: left;">Acu: 1, Acu: 1, Aud: 1, Aud: 1</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: numeric</strong></p>
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 10%">
+<col style="width: 14%">
+<col style="width: 8%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 6%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">mean</th>
+<th style="text-align: right;">sd</th>
+<th style="text-align: right;">p0</th>
+<th style="text-align: right;">p25</th>
+<th style="text-align: right;">p50</th>
+<th style="text-align: right;">p75</th>
+<th style="text-align: right;">p100</th>
+<th style="text-align: left;">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Min.Price</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">17.13</td>
+<td style="text-align: right;">8.75</td>
+<td style="text-align: right;">6.7</td>
+<td style="text-align: right;">10.8</td>
+<td style="text-align: right;">14.7</td>
+<td style="text-align: right;">20.3</td>
+<td style="text-align: right;">45.4</td>
+<td style="text-align: left;">▇▅▂▂▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Price</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">19.51</td>
+<td style="text-align: right;">9.66</td>
+<td style="text-align: right;">7.4</td>
+<td style="text-align: right;">12.2</td>
+<td style="text-align: right;">17.7</td>
+<td style="text-align: right;">23.3</td>
+<td style="text-align: right;">61.9</td>
+<td style="text-align: left;">▇▅▂▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Max.Price</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">21.90</td>
+<td style="text-align: right;">11.03</td>
+<td style="text-align: right;">7.9</td>
+<td style="text-align: right;">14.7</td>
+<td style="text-align: right;">19.6</td>
+<td style="text-align: right;">25.3</td>
+<td style="text-align: right;">80.0</td>
+<td style="text-align: left;">▇▃▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">MPG.city</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">22.37</td>
+<td style="text-align: right;">5.62</td>
+<td style="text-align: right;">15.0</td>
+<td style="text-align: right;">18.0</td>
+<td style="text-align: right;">21.0</td>
+<td style="text-align: right;">25.0</td>
+<td style="text-align: right;">46.0</td>
+<td style="text-align: left;">▇▅▂▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">MPG.highway</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">29.09</td>
+<td style="text-align: right;">5.33</td>
+<td style="text-align: right;">20.0</td>
+<td style="text-align: right;">26.0</td>
+<td style="text-align: right;">28.0</td>
+<td style="text-align: right;">31.0</td>
+<td style="text-align: right;">50.0</td>
+<td style="text-align: left;">▇▇▃▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">EngineSize</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2.67</td>
+<td style="text-align: right;">1.04</td>
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">1.8</td>
+<td style="text-align: right;">2.4</td>
+<td style="text-align: right;">3.3</td>
+<td style="text-align: right;">5.7</td>
+<td style="text-align: left;">▆▇▇▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Horsepower</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">143.83</td>
+<td style="text-align: right;">52.37</td>
+<td style="text-align: right;">55.0</td>
+<td style="text-align: right;">103.0</td>
+<td style="text-align: right;">140.0</td>
+<td style="text-align: right;">170.0</td>
+<td style="text-align: right;">300.0</td>
+<td style="text-align: left;">▆▇▇▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">RPM</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">5280.65</td>
+<td style="text-align: right;">596.73</td>
+<td style="text-align: right;">3800.0</td>
+<td style="text-align: right;">4800.0</td>
+<td style="text-align: right;">5200.0</td>
+<td style="text-align: right;">5750.0</td>
+<td style="text-align: right;">6500.0</td>
+<td style="text-align: left;">▂▆▇▇▆</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Rev.per.mile</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2332.20</td>
+<td style="text-align: right;">496.51</td>
+<td style="text-align: right;">1320.0</td>
+<td style="text-align: right;">1985.0</td>
+<td style="text-align: right;">2340.0</td>
+<td style="text-align: right;">2565.0</td>
+<td style="text-align: right;">3755.0</td>
+<td style="text-align: left;">▃▅▇▂▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Fuel.tank.capacity</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">16.66</td>
+<td style="text-align: right;">3.28</td>
+<td style="text-align: right;">9.2</td>
+<td style="text-align: right;">14.5</td>
+<td style="text-align: right;">16.4</td>
+<td style="text-align: right;">18.8</td>
+<td style="text-align: right;">27.0</td>
+<td style="text-align: left;">▂▇▆▃▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Passengers</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">5.09</td>
+<td style="text-align: right;">1.04</td>
+<td style="text-align: right;">2.0</td>
+<td style="text-align: right;">4.0</td>
+<td style="text-align: right;">5.0</td>
+<td style="text-align: right;">6.0</td>
+<td style="text-align: right;">8.0</td>
+<td style="text-align: left;">▁▅▇▃▂</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Length</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">183.20</td>
+<td style="text-align: right;">14.60</td>
+<td style="text-align: right;">141.0</td>
+<td style="text-align: right;">174.0</td>
+<td style="text-align: right;">183.0</td>
+<td style="text-align: right;">192.0</td>
+<td style="text-align: right;">219.0</td>
+<td style="text-align: left;">▁▃▇▆▂</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Wheelbase</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">103.95</td>
+<td style="text-align: right;">6.82</td>
+<td style="text-align: right;">90.0</td>
+<td style="text-align: right;">98.0</td>
+<td style="text-align: right;">103.0</td>
+<td style="text-align: right;">110.0</td>
+<td style="text-align: right;">119.0</td>
+<td style="text-align: left;">▂▇▇▆▂</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Width</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">69.38</td>
+<td style="text-align: right;">3.78</td>
+<td style="text-align: right;">60.0</td>
+<td style="text-align: right;">67.0</td>
+<td style="text-align: right;">69.0</td>
+<td style="text-align: right;">72.0</td>
+<td style="text-align: right;">78.0</td>
+<td style="text-align: left;">▂▇▇▇▂</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Turn.circle</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">38.96</td>
+<td style="text-align: right;">3.22</td>
+<td style="text-align: right;">32.0</td>
+<td style="text-align: right;">37.0</td>
+<td style="text-align: right;">39.0</td>
+<td style="text-align: right;">41.0</td>
+<td style="text-align: right;">45.0</td>
+<td style="text-align: left;">▃▆▆▇▃</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Rear.seat.room</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0.98</td>
+<td style="text-align: right;">27.83</td>
+<td style="text-align: right;">2.99</td>
+<td style="text-align: right;">19.0</td>
+<td style="text-align: right;">26.0</td>
+<td style="text-align: right;">27.5</td>
+<td style="text-align: right;">30.0</td>
+<td style="text-align: right;">36.0</td>
+<td style="text-align: left;">▁▂▇▅▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Luggage.room</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">0.88</td>
+<td style="text-align: right;">13.89</td>
+<td style="text-align: right;">3.00</td>
+<td style="text-align: right;">6.0</td>
+<td style="text-align: right;">12.0</td>
+<td style="text-align: right;">14.0</td>
+<td style="text-align: right;">15.0</td>
+<td style="text-align: right;">22.0</td>
+<td style="text-align: left;">▁▅▇▃▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Weight</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">3072.90</td>
+<td style="text-align: right;">589.90</td>
+<td style="text-align: right;">1695.0</td>
+<td style="text-align: right;">2620.0</td>
+<td style="text-align: right;">3040.0</td>
+<td style="text-align: right;">3525.0</td>
+<td style="text-align: right;">4105.0</td>
+<td style="text-align: left;">▂▆▇▇▆</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Entre las variables que formarán parte del análisis, el espacio en los asientos de atrás presenta 2 valores faltantes. Debido a su poco peso en el global de los datos (3%) se decide eliminar las filas.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a>datos_coches <span class="ot">&lt;-</span> <span class="fu">na.omit</span>(datos_coches)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Se seleccionan las variables que formarán parte del análisis canónico creando los dataset de las variables X y las variables Y.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>bloque_fisico <span class="ot">&lt;-</span> datos_coches <span class="sc">%&gt;%</span></span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(</span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a>    EngineSize,</span>
+<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a>    Horsepower,</span>
+<span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a>    Length,</span>
+<span id="cb64-6"><a href="#cb64-6" aria-hidden="true" tabindex="-1"></a>    Wheelbase,</span>
+<span id="cb64-7"><a href="#cb64-7" aria-hidden="true" tabindex="-1"></a>    Width,</span>
+<span id="cb64-8"><a href="#cb64-8" aria-hidden="true" tabindex="-1"></a>    Rear.seat.room,</span>
+<span id="cb64-9"><a href="#cb64-9" aria-hidden="true" tabindex="-1"></a>    Weight</span>
+<span id="cb64-10"><a href="#cb64-10" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb64-11"><a href="#cb64-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb64-12"><a href="#cb64-12" aria-hidden="true" tabindex="-1"></a>bloque_funcionamiento <span class="ot">&lt;-</span> datos_coches <span class="sc">%&gt;%</span></span>
+<span id="cb64-13"><a href="#cb64-13" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(</span>
+<span id="cb64-14"><a href="#cb64-14" aria-hidden="true" tabindex="-1"></a>    Price,</span>
+<span id="cb64-15"><a href="#cb64-15" aria-hidden="true" tabindex="-1"></a>    MPG.city,</span>
+<span id="cb64-16"><a href="#cb64-16" aria-hidden="true" tabindex="-1"></a>    MPG.highway,</span>
+<span id="cb64-17"><a href="#cb64-17" aria-hidden="true" tabindex="-1"></a>    Turn.circle</span>
+<span id="cb64-18"><a href="#cb64-18" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Los datos se encuentran en diferentes escalas, por lo que se normalizan antes de introducirlos a la matriz.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(<span class="fu">scale</span>(bloque_fisico))</span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>Y <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(<span class="fu">scale</span>(bloque_funcionamiento))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Se analizan las correlaciones cruzadas.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>matriz_cruzar <span class="ot">&lt;-</span> <span class="fu">cor</span>(X, Y)</span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">round</span>(matriz_cruzar, <span class="dv">4</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                Price MPG.city MPG.highway Turn.circle
+EngineSize     0.6418  -0.7472     -0.6665      0.7874
+Horsepower     0.7873  -0.7043     -0.6874      0.5982
+Length         0.5521  -0.7248     -0.6172      0.8114
+Wheelbase      0.6284  -0.6711     -0.5702      0.7458
+Width          0.4951  -0.6945     -0.5877      0.8205
+Rear.seat.room 0.3421  -0.3354     -0.2774      0.4615
+Weight         0.7375  -0.8357     -0.7768      0.7869</code></pre>
+</div>
+</div>
+<p>Las variables seleccionadas presentan una alta correlación positiva en algunos casos y negativa en otros. Esto confirma la idoneidad del análisis.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>modelo_cca <span class="ot">&lt;-</span> <span class="fu">cancor</span>(X, Y)</span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Extracción de las correlaciones canónicas</span></span>
+<span id="cb68-4"><a href="#cb68-4" aria-hidden="true" tabindex="-1"></a>correlaciones <span class="ot">&lt;-</span> modelo_cca<span class="sc">$</span>cor</span>
+<span id="cb68-5"><a href="#cb68-5" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(correlaciones) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">'Par_Canónico_'</span>, <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(correlaciones))</span>
+<span id="cb68-6"><a href="#cb68-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-7"><a href="#cb68-7" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">round</span>(correlaciones, <span class="dv">4</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Par_Canónico_1 Par_Canónico_2 Par_Canónico_3 Par_Canónico_4 
+        0.9371         0.6777         0.4557         0.1608 </code></pre>
+</div>
+</div>
+<p>Los resultados del análisis son los siguientes:</p>
+<ul>
+<li><p>Primer par canónico (0.9371): Existe una correlación lineal extremadamente fuerte entre la primera combinación lineal de las características físicas y la primera combinación lineal de precio y funcionamiento. Este primer par captura la mayor parte de la variabilidad compartida entre ambos conjuntos de datos. Indica que el aspecto físico del vehículo está íntimamente ligado a su precio y eficiencia.</p></li>
+<li><p>Segundo par canónico (0.6777): Representa una relación moderada-alta. Este par busca la máxima correlación posible bajo la condición de ser totalmente independiente (ortogonal) al primer par.</p></li>
+<li><p>Tercer par canónico (0.4557): Muestra una relación moderada-baja.</p></li>
+<li><p>Cuarto par canónico (0.1608): La relación es muy débil, lo que sugiere que este último par apenas aporta información relevante sobre la estructura conjunta de los datos.</p></li>
+</ul>
+<p>Se continua con el análisis de las cargas canónicas.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Multiplicación matricial para obtener las puntuaciones del primer par</span></span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Se selecciona únicamente la primera columna [, 1] de los coeficientes</span></span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a>U1 <span class="ot">&lt;-</span> X <span class="sc">%*%</span> modelo_cca<span class="sc">$</span>xcoef[, <span class="dv">1</span>]  </span>
+<span id="cb70-4"><a href="#cb70-4" aria-hidden="true" tabindex="-1"></a>V1 <span class="ot">&lt;-</span> Y <span class="sc">%*%</span> modelo_cca<span class="sc">$</span>ycoef[, <span class="dv">1</span>]  </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a>cargas_X <span class="ot">&lt;-</span> <span class="fu">cor</span>(X, U1)</span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(cargas_X) <span class="ot">&lt;-</span> <span class="st">'Carga_U1'</span></span>
+<span id="cb71-3"><a href="#cb71-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb71-4"><a href="#cb71-4" aria-hidden="true" tabindex="-1"></a>cargas_Y <span class="ot">&lt;-</span> <span class="fu">cor</span>(Y, V1)</span>
+<span id="cb71-5"><a href="#cb71-5" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(cargas_Y) <span class="ot">&lt;-</span> <span class="st">'Carga_V1'</span></span>
+<span id="cb71-6"><a href="#cb71-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb71-7"><a href="#cb71-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Se muestran los resultados para analizar qué variables pesan más</span></span>
+<span id="cb71-8"><a href="#cb71-8" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="st">'--- Cargas del Bloque físcio ---'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "--- Cargas del Bloque físcio ---"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">round</span>(cargas_X, <span class="dv">4</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>               Carga_U1
+EngineSize      -0.9228
+Horsepower      -0.8769
+Length          -0.8888
+Wheelbase       -0.8687
+Width           -0.8576
+Rear.seat.room  -0.4867
+Weight          -0.9962</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="st">'--- Cargas del Bloque funcionamiento y precio ---'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "--- Cargas del Bloque funcionamiento y precio ---"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">round</span>(cargas_Y, <span class="dv">4</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>            Carga_V1
+Price        -0.7979
+MPG.city      0.8921
+MPG.highway   0.8298
+Turn.circle  -0.8385</code></pre>
+</div>
+</div>
+<p>Las variables del <strong>bloque de características físicas</strong> se encuentran bastante distribuidas respecto a su peso dentro del primer coeficiente canónico, presetando pesos muy grandes y todas con el mismo signo, por lo que se mueven en la misma dirección. La única excepción es el espacio en los asientos traseros, tratándose de la variable con menos relevancia. Valores altos en esta dimensión representan vehículos con motores pequeños y de menor tamaño y peso.</p>
+<p>En el <strong>bloque de funcionamiento</strong> todas las variables tienen un peso alto. Mientras que el consumo tiene signo positivo, el precio y ratio de giro tienen signo negativos. Esto indica que valores altos en esta dimensión se relacionan con vehículos más eficientes en consumo y con menor precio y mejor ratio de giro.</p>
+<p>Se procede a un análisis gráfico de ambos bloques respecto al par canónico con la máxima correlación lineal.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Se organizan en un data frame para graficar cómodamente</span></span>
+<span id="cb79-2"><a href="#cb79-2" aria-hidden="true" tabindex="-1"></a>df_scores <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">U1 =</span> U1, <span class="at">V1 =</span> V1)</span>
+<span id="cb79-3"><a href="#cb79-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb79-4"><a href="#cb79-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_scores, <span class="fu">aes</span>(<span class="at">x =</span> U1, <span class="at">y =</span> V1)) <span class="sc">+</span></span>
+<span id="cb79-5"><a href="#cb79-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">'darkblue'</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="fl">1.5</span>) <span class="sc">+</span></span>
+<span id="cb79-6"><a href="#cb79-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">'lm'</span>, <span class="at">color =</span> <span class="st">'red'</span>, <span class="at">linetype =</span> <span class="st">'dashed'</span>, <span class="at">se =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb79-7"><a href="#cb79-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb79-8"><a href="#cb79-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">'Primer Par de Variables Canónicas (1990)'</span>,</span>
+<span id="cb79-9"><a href="#cb79-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">'U1: Dimensión canónica física'</span>,</span>
+<span id="cb79-10"><a href="#cb79-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">'V1: Dimensión canónica funcionamiento y precio'</span>,</span>
+<span id="cb79-11"><a href="#cb79-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="fu">paste0</span>(<span class="st">'Correlación canónica: '</span>, <span class="fu">round</span>(modelo_cca<span class="sc">$</span>cor[<span class="dv">1</span>], <span class="dv">4</span>))</span>
+<span id="cb79-12"><a href="#cb79-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb79-13"><a href="#cb79-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb79-14"><a href="#cb79-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">'bold'</span>, <span class="at">hjust =</span> <span class="fl">0.5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Miguel_Cabestrero_Analisis_multivariante_practica_files/figure-html/unnamed-chunk-39-1.png" class="quarto-figure quarto-figure-center figure-img" style="width:100.0%;height:80.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>El gráfico plasma visualmente la fortísima correlación matemática obtenida (0.9371). La dispersión de los puntos en una diagonal casi perfecta confirma que ambos bloques están estrechamente relacionados.</p>
+<p>Atendiendo al análisis de cargas canónicas realizado previamente, se puede apreciar que para vehículos con motores pequeños, menor tamaño y peso que ese encuentran en la parte derecha del plano (dimensión de características físicas), presentan además una menor combinación de precio, consumos y radio de giro, ya que están en la parte superior del plano (dimensión de precio y fincionamiento). Se puede apreciar lo opuesto al otro extremo del plano; a medida que el tamaño del vehículo, peso y motor aumentan, también lo hacen los consumos, precio y radio de giro.</p>
+<p>Se contruye un mapa de variables para ver gráficamente las cargas de cada bloque.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Se calculan las correlaciones cruzadas (bloque X con V1, y bloque Y con U1)</span></span>
+<span id="cb80-2"><a href="#cb80-2" aria-hidden="true" tabindex="-1"></a>cruzadas_X_V1 <span class="ot">&lt;-</span> <span class="fu">cor</span>(X, V1)</span>
+<span id="cb80-3"><a href="#cb80-3" aria-hidden="true" tabindex="-1"></a>cruzadas_Y_U1 <span class="ot">&lt;-</span> <span class="fu">cor</span>(Y, U1)</span>
+<span id="cb80-4"><a href="#cb80-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb80-5"><a href="#cb80-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Se construye el data frame unificando los vectores </span></span>
+<span id="cb80-6"><a href="#cb80-6" aria-hidden="true" tabindex="-1"></a>mapa_variables <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb80-7"><a href="#cb80-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">Variable =</span> <span class="fu">c</span>(<span class="fu">rownames</span>(cargas_X), <span class="fu">rownames</span>(cargas_Y)),</span>
+<span id="cb80-8"><a href="#cb80-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb80-9"><a href="#cb80-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># El Eje_X representa la correlación de todas las variables con la dimensión U1</span></span>
+<span id="cb80-10"><a href="#cb80-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">Eje_X    =</span> <span class="fu">c</span>(cargas_X[, <span class="dv">1</span>], cruzadas_Y_U1[, <span class="dv">1</span>]),</span>
+<span id="cb80-11"><a href="#cb80-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb80-12"><a href="#cb80-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># El Eje_Y representa la correlación de todas las variables con la dimensión V1</span></span>
+<span id="cb80-13"><a href="#cb80-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">Eje_Y    =</span> <span class="fu">c</span>(cruzadas_X_V1[, <span class="dv">1</span>], cargas_Y[, <span class="dv">1</span>]),</span>
+<span id="cb80-14"><a href="#cb80-14" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb80-15"><a href="#cb80-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Se generan las etiquetas repitiendo el texto según el número exacto de variables de cada bloque</span></span>
+<span id="cb80-16"><a href="#cb80-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">Bloque   =</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">'Física'</span>, <span class="fu">ncol</span>(X)), <span class="fu">rep</span>(<span class="st">'Funcionamiento-precio'</span>, <span class="fu">ncol</span>(Y)))</span>
+<span id="cb80-17"><a href="#cb80-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb80-18"><a href="#cb80-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb80-19"><a href="#cb80-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb80-20"><a href="#cb80-20" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(mapa_variables, <span class="fu">aes</span>(<span class="at">x =</span> Eje_X, <span class="at">y =</span> Eje_Y, <span class="at">color =</span> Bloque)) <span class="sc">+</span></span>
+<span id="cb80-21"><a href="#cb80-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(<span class="fu">aes</span>(<span class="at">xend =</span> <span class="dv">0</span>, <span class="at">yend =</span> <span class="dv">0</span>), <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="fl">0.2</span>, <span class="st">'cm'</span>)), </span>
+<span id="cb80-22"><a href="#cb80-22" aria-hidden="true" tabindex="-1"></a>               <span class="at">linewidth =</span> <span class="fl">0.7</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb80-23"><a href="#cb80-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb80-24"><a href="#cb80-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text_repel</span>(<span class="fu">aes</span>(<span class="at">label =</span> Variable), <span class="at">size =</span> <span class="fl">3.5</span>, <span class="at">fontface =</span> <span class="st">'bold'</span>, <span class="at">box.padding =</span> <span class="fl">0.4</span>) <span class="sc">+</span></span>
+<span id="cb80-25"><a href="#cb80-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">'path'</span>,</span>
+<span id="cb80-26"><a href="#cb80-26" aria-hidden="true" tabindex="-1"></a>           <span class="at">x =</span> <span class="fu">cos</span>(<span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">2</span> <span class="sc">*</span> pi, <span class="at">length.out =</span> <span class="dv">100</span>)),</span>
+<span id="cb80-27"><a href="#cb80-27" aria-hidden="true" tabindex="-1"></a>           <span class="at">y =</span> <span class="fu">sin</span>(<span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">2</span> <span class="sc">*</span> pi, <span class="at">length.out =</span> <span class="dv">100</span>)),</span>
+<span id="cb80-28"><a href="#cb80-28" aria-hidden="true" tabindex="-1"></a>           <span class="at">lty =</span> <span class="st">'dashed'</span>, <span class="at">color =</span> <span class="st">'grey70'</span>) <span class="sc">+</span></span>
+<span id="cb80-29"><a href="#cb80-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">'dotted'</span>) <span class="sc">+</span></span>
+<span id="cb80-30"><a href="#cb80-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">'dotted'</span>) <span class="sc">+</span></span>
+<span id="cb80-31"><a href="#cb80-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb80-32"><a href="#cb80-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">'Mapa de Variables - Cargas Canónicas (1993)'</span>,</span>
+<span id="cb80-33"><a href="#cb80-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">'Correlación con la Dimensión Canónica Física (U1)'</span>,</span>
+<span id="cb80-34"><a href="#cb80-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">'Correlación con la Dimensión Canónica de Funcionamiento (V1)'</span></span>
+<span id="cb80-35"><a href="#cb80-35" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb80-36"><a href="#cb80-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_fixed</span>() <span class="sc">+</span></span>
+<span id="cb80-37"><a href="#cb80-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb80-38"><a href="#cb80-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">'bold'</span>, <span class="at">hjust =</span> <span class="fl">0.5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Miguel_Cabestrero_Analisis_multivariante_practica_files/figure-html/unnamed-chunk-40-1.png" class="quarto-figure quarto-figure-center figure-img" style="width:100.0%;height:80.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Este último gráfico confirma e ilustra perfectamente las relaciones analizadas. El tamaño, el precio y el ratio de giro correlacionan en la misma dirección y con pesos similares. En el extremo opuesto y con un peso similar se encuentran las variables de eficiencia de consumo. Además, el espacio de las plazas traseras es la variable con menor peso.</p>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
