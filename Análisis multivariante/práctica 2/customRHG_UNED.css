@@ -1,0 +1,97 @@
+/* Añadir al principio del script*/
+
+/*```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  fig.align = 'center',
+  fig.width = 12,  # Esto actúa como un valor base
+  fig.height = 5,  # También un valor base
+  out.width = '100%',  # Asegura que el ancho se ajuste
+  out.height = '80%'   # Ajusta el alto al 80%
+)
+```*/
+
+/* Estilo para el título en la barra lateral */
+#sidebar h1.main-title {
+    font-size: 20px; /* Tamaño del título principal en la barra lateral */
+    color: white; /* Color del título principal en la barra lateral */
+  }
+  
+  /* Estilo para el título principal */
+  .main-title {
+    font-size: 75px; /* Tamaño del título principal */
+  }
+  
+  h1, h2, h3, h4, h5, h6, legend {
+      color: #333333;
+      text-align: center;
+  }
+  
+  p {
+    text-align: justify;
+  }
+  
+  /* Estilo para el fondo del documento */
+  body {
+    background-color: white !important; /* Color de fondo blanco */
+  }
+
+#sidebar h2 {
+    z-index: 200;
+    background-color: #095540;
+    text-align: center;
+    padding: 0.809em;
+    display: block;
+    color: #ffffff;
+    font-size: 100%;
+    margin-top: 0px;
+    margin-bottom: 0.809em;
+}
+
+#sidebar {
+    background-color:#849c94;
+}
+
+#toc ul.nav > li > a {
+    color: #ffffff;
+}
+
+#toc ul.nav li.active ul li.active a {
+    color: #ffffff;
+    font-weight: bold !important;
+}
+
+#toc ul.nav > li.active > a {
+    color: #ffffff !important;
+}
+
+#sidebar a:hover {
+    background-color: #095540;
+    cursor: pointer;
+}
+
+
+#toc ul.nav li.active ul li a {
+    background-color: #849c94;
+    color: #333333;
+    border-right: solid 1px #095540;
+    font-weight: bold;
+}
+
+#toc ul.nav li.active a {
+    color: #ffffff;
+    font-weight: bold;
+    background-color: #095540;
+    font-weight: bold;
+}
+
+#postamble {
+    font-size: 100%;
+    margin-bottom: 0px;
+    background-color: #095540;
+    border-top: solid 0px;
+}
+
+#content{
+    max-width:1920px;
+}
