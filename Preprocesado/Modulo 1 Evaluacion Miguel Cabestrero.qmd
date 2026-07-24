@@ -1,0 +1,573 @@
+---
+title: 'Evaluación Preprocesado'
+author: 'Miguel Cabestrero Martín'
+format:
+  html:
+    embed-resources: true
+    toc: true
+    toc-location: left
+    number-sections: true
+    theme: cosmo
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+El dataset contiene información sobre 2,105 pacientes diagnosticados con la enfermedad de Parkinson, será necesario realizar un análisis de los factores asociados con la enfermedad. El conjunto de datos incluye información demográfica, antecedentes médicos, mediciones clínicas, evaluaciones cognitivas y funcionales, síntomas y un indicador de diagnóstico.
+
+Variables
+
+* PatientID: Identificador único asignado a cada paciente
+* Age: Edad de los pacientes (rango de 50 a 90 años)
+* Gender: Género de los pacientes (0: Masculino, 1: Femenino)
+* Ethnicity: Etnicidad de los pacientes (0: Caucásico, 1: Afroamericano, 2: Asiático, 3: Otro)
+* EducationLevel: Nivel educativo de los pacientes (0: Ninguno, 1: Secundaria, 2: Licenciatura, 3: Superior)
+* BMI: Índice de masa corporal de los pacientes (rango de 15 a 40)
+* Smoking: Estado de fumador (0: No, 1: Sí)
+* AlcoholConsumption: Consumo semanal de alcohol en unidades (rango de 0 a 20)
+* PhysicalActivity: Actividad física semanal en horas (rango de 0 a 10)
+* DietQuality: Puntaje de calidad de la dieta (rango de 0 a 10)
+* SleepQuality: Puntaje de calidad del sueño (rango de 4 a 10)
+* FamilyHistoryParkinsons: Historia familiar de la enfermedad de Parkinson (0: No, 1: Sí)
+* TraumaticBrainInjury: Historia de lesiones cerebrales traumáticas (0: No, 1: Sí)
+* Hypertension: Presencia de hipertensión (0: No, 1: Sí)
+* Diabetes: Presencia de diabetes (0: No, 1: Sí)
+* Depression: Presencia de depresión (0: No, 1: Sí)
+* Stroke: Historia de accidente cerebrovascular (0: No, 1: Sí)
+* SystolicBP: Presión arterial sistólica (rango de 90 a 180 mmHg)
+* DiastolicBP: Presión arterial diastólica (rango de 60 a 120 mmHg)
+* CholesterolTotal: Niveles de colesterol total (rango de 150 a 300 mg/dL)
+* CholesterolLDL: Niveles de colesterol LDL (rango de 50 a 200 mg/dL)
+* CholesterolHDL: Niveles de colesterol HDL (rango de 20 a 100 mg/dL)
+* CholesterolTriglycerides: Niveles de triglicéridos (rango de 50 a 400 mg/dL)
+* MoCA: Puntuación de la evaluación cognitiva de Montreal (rango de 0 a 30)
+* FunctionalAssessment: Puntuación de la evaluación funcional (rango de 0 a 10)
+* Tremor: Presencia de temblores (0: No, 1: Sí)
+* Rigidity: Presencia de rigidez muscular (0: No, 1: Sí)
+* Bradykinesia: Presencia de bradicinesia (lentitud en los movimientos) (0: No, 1: Sí)
+* PosturalInstability: Presencia de inestabilidad postural (0: No, 1: Sí)
+* SpeechProblems: Presencia de problemas de habla (0: No, 1: Sí)
+* SleepDisorders: Presencia de trastornos del sueño (0: No, 1: Sí)
+* Constipation: Presencia de estreñimiento (0: No, 1: Sí)
+* Diagnosis: Estado del diagnóstico de la enfermedad de Parkinson (0: No, 1: Sí)
+
+```{r, message=FALSE, warning=FALSE}
+library(arrow)
+library(tidyverse)
+library(skimr)  
+library(corrplot)
+library(Hmisc)
+library(inspectdf)
+library(PerformanceAnalytics)
+library(RobStatTM)
+library(randomForest)
+library(mice)
+library(VIM)
+library(outliers)
+library(mvoutlier)
+library(solitude)
+library(sampling)
+library(genalg)
+library(doParallel)
+library(mlbench)
+library(caret)
+library(formattable)
+library(ggplot2)
+library(gridExtra)
+library(rcompanion)
+library(recipes)
+library(themis)
+```
+
+Se cargan los datos.
+
+```{r}
+df <- read_parquet("parkinsons_disease_data.parquet")
+```
+
+# Análisis descriptivo y gráfico
+
+Se realiza un primer análisis exploratorio de los datos.
+
+```{r}
+skim(df)
+```
+
+Todas las variables del dataset son de tipo numérico, sin embargo, algunas deberían ser categóricas o dicotómicas, por lo que se factorizan.
+
+```{r}
+df <- df %>%
+  mutate(across(c(Gender, Ethnicity, EducationLevel, Smoking, FamilyHistoryParkinsons, TraumaticBrainInjury, Hypertension,
+  Diabetes, Depression, Stroke, Tremor, Rigidity, Bradykinesia, PosturalInstability, SpeechProblems, SleepDisorders, Constipation,
+ Diagnosis), as.factor))
+```
+
+# Análisis descriptivo y gráfico de las variables (univariante y bivariante)
+
+Tras las trasnformaciones realizadas a las variables se vuelve a hacer un análisis exploratorio para observar si se llevaron a cabo correctamente.
+
+```{r}
+skim(df)
+```
+
+## Estudio inicial valores nulos
+
+```{r}
+# Descriptivo general del dataset
+desc_df <- skim(df)
+
+# Crear tabla con información sobre tipo de variable y % de valores nulos
+var_type_missing_df <- desc_df %>%
+  mutate(n_missing_perc = 100 * round(1 - complete_rate, 3)) %>%
+  select(skim_type, skim_variable, n_missing, n_missing_perc) %>%
+  arrange(skim_type, n_missing)
+
+# Visualizar en formato tabla
+formattable(var_type_missing_df)
+```
+
+Las primeras observaciones de los datos muestran que varias variables presentan valores nulos:
+
+Variables Categóricas
+* Diabetes: 241 valores nulos.
+* Gender: 205 valores nulos.
+* SpeechProblems: 196 valores nulos.
+* Hypertension: 192 valores nulos.
+
+Variables Numéricas
+* SleepQuality: 210 valores nulos.
+* CholesterolHDL: 191 valores nulos.
+* SystolicBP: 190 valores nulos.
+* DietQuality: 179 valores nulos.
+
+En todas las variables con valores nulos, estas representan enter un 12% y un 8% aproximadamente del total de registros. Por lo tanto, se descarta eliminar variables en base a este criterio.
+
+Se realiza una última comprobación para calcular el número de registros que presentan algun valor nulo.
+
+```{r}
+df_wonulls <- df %>% drop_na()
+
+round(1 - nrow(df_wonulls) / nrow(df), 3)*100
+```
+
+Si se seleccionarán todos los registros con al menos un valor nulo estos supondrían el 55.3% de los datos totales.
+
+En lugar de quedarnos con la muestra sin valores nulos, se plantearán técnicas de imputación. 
+
+## Observaciones iniciales de relación entre Diagnóstico y resto de variables
+
+En cuanto a las variables categóricas, se puede ver que existe entre la muestra una mayor porporción de personas con historial de enfermedades (infartos, diabetes, depresión) y de síntomas (rigidez, temblores...), algo que parece estar relacionado con que exista un mayor número de diagnósticos postivos de Parkinson que negativos. Pero se seguirá explorando esta hipótesis.
+
+Respecto a las variables numéricas, se pueden apreciar variables como consumo de alcohol o actividad física que presentan unos valores mínimo sospechosamente cercanos a 0, aunque puede que no se trate de un error, pero si es algo a tener en cuenta. Además, los histiogramas de todas las variables presentan una distribución muy uniforme, algo extraño en muestras tran grandes que suelen asimilarse a distribuciones normales.
+
+
+# Análisis univariante y bivariante
+
+## Variables numéricas
+
+Se realiza un análisis descriptivo de las varaibles numéricas basado en las medidas de tendencia central y de dispersión.
+```{r}
+desc_df <- skim(df)
+
+# Crear tabla descriptiva para variables numéricas
+desc_numeric_var_df <- desc_df %>%
+  filter(skim_type == "numeric") %>%
+  select(skim_variable, 
+         numeric.mean, numeric.sd, 
+         numeric.p0, numeric.p25, numeric.p50, numeric.p75, numeric.p100)
+
+formattable(desc_numeric_var_df)
+```
+
+El análisis univariante descriptivo de las variables numéricas se realiza agrupado por categoría:
+
+**Variables demográficas y de estilo de vida**
+
+* Age: La edad de la muestra va desde los 50 hasta los 89 años, con una media de 69 años. Por lo que la muestra solamente contiene pacientes de senior y valores anómalos mayores hacia la derecha. Al observar que la media y la mediana son prácticamente idénticas (70), se deduce una distribución muy equilibrada y simétrica.
+* BMI: La media se situa en 27.2 con un valor máximo de 40 aproximadamente y un mínimo de 15. La proximidad de los cuartiles 25 y 75 (20.8 y 33.5) respecto a la mediana sugiere una distribución razonablemente normalizada.
+* Consumo de alcohol: La muestra presenta personas que apenas consumen alcohol con un mínimo que roza el 0 y personas con un consumo severo. La media situada en 10 aproximadamente sugiere una distribución muy uniforme.
+* Dieta y Ejercicio: Estas variables están "centradas". Los valores medios están justo en el 5 (la mitad de la escala). Parece que la muestra tiene un poco de todo, congente que se cuida mucho y gente que no hace nada, sin que domine un grupo sobre otro.
+* Calidad de sueño: muestra una media de 6.97 y una mediana de 6.90. Lo más destacable aquí es su rango, que va de 4 a 10; a diferencia de otras variables.
+
+**Variables médicas**
+
+* Las varaibles SystolicBP, DiastolicBP, CholesterolTotal, CholesterolLDL, CholesterolHDL y CholesterolTriglycerides todas muestran medias y medianas muy similares indicando simetría. 
+* Algunas de estas variables: DiastolicBP, SystolicBP y CholesterolTotal presentan desviaciones típicas comparadas con la media, indicando unas distribuciones relativamente estrechas.
+
+**Variables psicométricas**
+
+* MoCA: Presenta una distribución uniforme aunque con ligeras desviaciones de la media y la mediana, indicando valores extremos que empujan la distribución hacia la derecha. Esta es además muy amplia, ya que la desviación típica (8.64) es más de la mitad respecto a la media (15.09), algo que también se aprecia en la gran diferencia en el rango intercuartílico.
+* Assessment: A diferencia del MoCA, esta variable es algo más simétrica aunque también tiene gran dispersión.
+
+## Análisis gráfico
+
+Para continuar con el análisis del efecto de las variables demográficas, de hábitos, historial médico, mediciones biomédicas y síntomas sobre el diagnóstico, crearemos listas con los nombres de las columnas para utilzarlas, permitiendo unificar variables de campos y tipología similar (numércia o categórica).
+
+```{r}
+# Demográficas
+vars_demo <- c("Age", "Gender", "Ethnicity", "EducationLevel")
+vars_demo_cat <- c("Gender", "Ethnicity", "EducationLevel")
+
+
+# Estilo de Vida (sin smoking al ser categórica)
+vars_habitos <- c( "AlcoholConsumption", "PhysicalActivity", "DietQuality", "SleepQuality", 'BMI')
+
+# Historial Médico
+vars_historial <- c("FamilyHistoryParkinsons", "TraumaticBrainInjury", "Hypertension", 
+                    "Diabetes", "Depression", "Stroke")
+
+# Síntomas Clínicos
+vars_sintomas <- c("Tremor", "Rigidity", "Bradykinesia", "PosturalInstability", 
+                   "SpeechProblems", "SleepDisorders", "Constipation")
+
+# Evaluaciones funcionales y cognitivas
+var_evaluacion <- c('MoCA', 'FunctionalAssessment')
+
+# Mediciones Biométricas
+vars_biometricas <- c("SystolicBP", "DiastolicBP", "CholesterolTotal", 
+                      "CholesterolLDL", "CholesterolHDL", "CholesterolTriglycerides")
+```
+
+Vamos a realizar un análisis gráfico mediante gráficos de barras que para comparar los valores de diferentes variables en base al diagnóstico. Para agilizar el proceso, se crearán funciones que automaticen la generación de gráficos.
+
+### Histiograma
+
+Se comienza el análisis gráfico con histiograma para estudiar la distribución de las variables numéricas. Empezando con la creación de la función.
+
+```{r}
+gr_hist <- function(var_name) {
+  
+  ggplot(df, aes(x = .data[[var_name]])) +
+    geom_histogram(aes(y = ..density..), 
+                   bins = 30, 
+                   fill = 'steelblue', 
+                   color = 'white', 
+                   alpha = 0.8) +
+    geom_density(alpha = 0.2, color = 'red') +
+    ggtitle(paste0('Distribución de ', var_name, ' según Diagnosis')) +
+    theme_minimal() +
+    scale_fill_brewer(palette = 'Set1')
+}
+```
+
+```{r}
+# Grupo de hábitos 
+plots_habitos <- lapply(vars_habitos, gr_hist)
+do.call(grid.arrange, c(plots_habitos, ncol = 2))
+
+# Grupo de Evaluaciones (Cognitiva y Funcional)
+plots_eval <- lapply(var_evaluacion, gr_hist)
+do.call(grid.arrange, c(plots_eval, ncol = 2))
+
+# Grupo de Mediciones Biométricas
+plots_bio <- lapply(vars_biometricas, gr_hist)
+do.call(grid.arrange, c(plots_bio, ncol = 2))
+
+# Edad
+plots_edad <- gr_hist('Age')
+plots_edad
+```
+
+Los resultados de los 3 grupos de variables numéricas (hábitos, evaluaciones cognitivas y parámetros médicos) muestran una distribución muy uniforme, donde ningún valor predomina, no habiendo una tenendencia central predominante sobre la que se acumulan la mayoría de registros. 
+
+La línea de densidad es relativamente estable en todas las muestras cayendo de forma similar en todas las variables hacia los extremos. Además, todas las variables presentan ciertos valores puntuales que sobresalen del resto aunque no se concentran en una parte específica. 
+
+Al igual que los valores que sobresalen, existen valores con una menor concentración de resgistros, pero sin llegar a haber vacíos notorios.
+
+Donde más se aprecian estas diferencias es en la variable edad, con muúltiple columnas duplicando al resto a lo largo de todo el rango de datos.
+
+### histiograma comparativo del diagnóstico
+
+Se crea una función que genere un histiograma que compare las varaibles numéricas en base al diagnóstico,  donde 1 es diagnóstico positivo y 0 diagnóstico negativo.
+
+```{r}
+gr_hist_comp <- function(var_name) {
+  
+  ggplot(df, aes(x = .data[[var_name]], fill = Diagnosis)) +
+    # geom_histogram agrupa los decimales automáticamente en barras visibles
+    geom_histogram(bins = 30, color = 'white', alpha = 0.7, position = 'identity') +
+    ggtitle(paste0('Distribución de ', var_name, ' según Diagnosis')) +
+    theme_minimal() +
+    # Usamos colores similares a tu ejemplo (Salmon y Turquesa)
+    scale_fill_manual(values = c('0' = '#F8766D', '1' = '#00BFC4'))
+}
+```
+
+```{r}
+# Grupo de hábitos 
+plots_habitos_comp <- lapply(vars_habitos, gr_hist_comp)
+do.call(grid.arrange, c(plots_habitos_comp, ncol = 2))
+
+# Grupo de Evaluaciones (Cognitiva y Funcional)
+plots_eval_comp <- lapply(var_evaluacion, gr_hist_comp)
+do.call(grid.arrange, c(plots_eval_comp, ncol = 2))
+
+# Grupo de Mediciones Biométricas
+plots_bio_comp <- lapply(vars_biometricas, gr_hist_comp)
+do.call(grid.arrange, c(plots_bio_comp, ncol = 2))
+
+# Edad
+plots_edad_comp <- gr_hist_comp('Age')
+plots_edad_comp
+```
+
+Del histiograma segmentado por diagnóstico se puede concluir que en todas las variables son predominantes los casos positivos en toda la muestra. 
+
+**Las pocas variables donde no se cumple esto son MoCA, el examen funcional y la edad. Esto las destaca como potentes diferenciadoras del diagnóstico.**
+
+Las evaluaciones cognitivas parecen ser claros inidicadores, en los que obtener altos resultados (alta capacidad cognitiva) está inversamente relacionado con tener la enfermedad. Se debe matizar que en el caso del functional assessment, aunque la tendencia es a que haya menso diagnósticos positivos en valores altos, aún existen registros entre estos valores donde sigue habiendo más casos positivos.
+
+Por último, la edad actúa como un predictor claro, ya que existe una clara predominancia de personas con Parkinson entre los 60 y 85 años de edad, mientras que en gente más jóven, 50 a 60 años, esta diferencia se reduce significativamentem. Esto coloca a la edad como un claro valor preditor respecto al diagnóstico. 
+
+### Gráfico de barras
+
+Se crea una función que genere un gráfico de barras que compare los valores de las variables categóricas en base al diagnóstico.
+```{r}
+gr_fill <- function(var_name) {
+  
+  ggplot(df, aes(x = .data[[var_name]], fill = Diagnosis)) +
+    geom_bar(position = 'dodge') +
+    ggtitle(paste0('valores de ', var_name, ' en función del diagnósis' )) +
+    theme_minimal()
+}
+```
+
+```{r}
+gr_fill_demo <- sapply(vars_demo_cat, gr_fill)
+do.call(grid.arrange, c(gr_fill_demo, ncol = 2))
+
+gr_fill_historial <- sapply(vars_historial, gr_fill)
+do.call(grid.arrange, c(gr_fill_historial, ncol = 2))
+
+gr_fill_sintomas <- sapply(vars_sintomas, gr_fill)
+do.call(grid.arrange, c(gr_fill_sintomas, ncol = 2))
+
+gr_fill_smoke <- gr_fill('Smoking')
+gr_fill_smoke
+```
+
+**Variables demográficas**
+En las variables demográficas parecen uniformes entre sus diferentes categorías, con una proporción de diagnósticos postivos (1) y negativos (0) constante, con un tercio más aproximadamente de casos positivos respecto a negativos a lo largo de todas las categorías.
+
+**Variables sintomáticas**
+La presencia de temblores, rígidez, bradicinesia, problemas de estabilidad y de trastornos del habla muestran una clara relación con la presencia de la enfermedad de Parkinson. Algo natural, considerando que son síntomas de la enfermedad.
+
+Por su parte, los desórdenes de sueño y el estreñimiento no muestran una asociación clara con el diagnóstico. La distribución de casos positivos y negativos se mantiene uniforme independientemente de la presencia o ausencia de estos síntomas
+
+**Variables relacionadas con el historial médico**
+
+No se observan diferencias significativas en el diagnóstico en función del historial clínico previo. La proporción de casos es constante tanto en sujetos con antecedentes de otras patologías como en aquellos sin ellos.
+
+**Variables relacionadas con hábitos (fumar)**
+
+Tampoco existe una diferencia en el diagnóstico entre personas fumadoras y no fumadoras.
+
+## Correlación
+
+Tras el análisis bivariante, se realiza un último estudio de correlaciones entre las variables.
+
+En primer lugar se hace un análisis con unicamente de las **variables numéricas mediante pearson**.
+
+```{r}
+df_numeric <- df %>% select(Diagnosis, Age, all_of(c(vars_habitos, var_evaluacion, vars_biometricas))) %>% 
+  mutate(Diagnosis = as.numeric(as.character(Diagnosis))) %>%
+  drop_na()
+
+matriz_corr <- cor(df_numeric, method = "pearson")
+
+corrplot(matriz_corr, 
+  method="color", 
+  type="upper", 
+  number.cex = 0.65,
+  addCoef.col = "black")
+```
+
+El resultado muestra que las únicas correlaciones destacables son el MoCA y el test de funcionalidad que se correlacionan, como ya vimos antes, de manera negativa con la enfermedad, donde valores más altos muestran menor número de casos positivos. Sus coeficientes de correlación son -0.19 para MoCA y -0.25 para el test. 
+
+La edad tiene algo más de correlación que otras variables, pero su coeficiente es pequeño 0.07.
+
+
+Para ver la **asociación entre la variable Diagnóstico y las variables categóricas, se recurre a la V de Cramér**.
+
+```{r}
+df_categorico <- df %>% select(Diagnosis, all_of(c(vars_historial, vars_sintomas, 'Smoking', vars_demo_cat)))  %>% 
+  drop_na()
+
+resultados_cramer <- sapply(df_categorico, function(x) cramerV(x, df_categorico$Diagnosis))
+
+tabla_final <- data.frame(
+  variable = names(resultados_cramer),
+  v_cramer = as.numeric(resultados_cramer)
+)
+
+tabla_final <- arrange(tabla_final, desc(v_cramer))
+
+print(tabla_final)
+```
+
+La tabla de resultados muestra que la asociación es débil, destacando por orden de mayor asociación: temblores, rígidez, Bradykinesia y PosturalInstability. Todas las variables mencionadas pertenecen a los síntomas, por lo que no es sorpresa que aparezcan primeras. Lo que si es sorprendente es que su asociación sea débil (menor de 0.3).
+
+
+# Tratamiento de datos ausentes
+
+El data set presenta múltiples variables con valores nulos. Concretamente son las que aparecen en la siguiente tabla, donde se puede ver que no representan un porcentaje extremadamente alto, rondando un 11%-8% del total de resgistros de las variables, por lo que se descarta eliminar variables optando por imputar valores.
+
+```{r}
+# Seleccionamos solo las columnas que tienen algún NA
+df_con_nulos <- df %>% 
+  select(where(~ any(is.na(.))))
+
+resumen_nulos <- df %>%
+  select(where(~ any(is.na(.)))) %>%
+  # calculamos total de NAs por variable
+  summarise(across(everything(), ~ sum(is.na(.)))) %>%
+  # pivotamos para que las variables sean filas en lugar de columnas y ordenados de más a menos NAs
+  pivot_longer(cols = everything(), names_to = "Variable", values_to = "Total_NAs") %>%
+  # Añadimos tipo de dato y el cálculo del porcentaje
+  mutate(
+    Tipo_Dato = sapply(Variable, function(v) class(df[[v]])[1]),
+    Porcentaje_Missing = round((Total_NAs / nrow(df)) * 100, 2)
+  ) %>%
+  arrange(desc(Total_NAs))
+
+print(resumen_nulos)
+```
+
+
+```{r}
+# Se crea un nuevo dataset para revertir posibles errores
+df_wo_na <- df
+```
+
+Para la imputación se opta por el método de K-vecinos más próximos. Este método permite completar los datos faltantes tanto de variables cuantitativas como cualitativas, basándose en la proximidad o smilitud con otros registros, lo que garantiza una mayor fidelidad a la distribución original de la muestra. 
+
+```{r}
+# Se identifican las variables que requieren imputación según el resumen previo
+vars_a_imputar <- resumen_nulos$Variable
+
+set.seed(123)
+# Se aplica la imputación por KNN sobre el dataset de trabajo
+# Se utiliza k = 5 para balancear la precisión con la representatividad estadística
+df_wo_na <- kNN(df_wo_na, 
+                variable = vars_a_imputar, 
+                k = 5, 
+                imp_var = FALSE)
+
+# Se verifica que la limpieza de valores nulos se haya completado con éxito
+nulos_finales <- sum(is.na(df_wo_na))
+cat('Total de valores nulos tras la imputación:', nulos_finales, '\n')
+```
+
+# Revisión de valores atípicos
+
+Para el análisis de valores atípicos se opta por el uso del método multivariante Isolation Forest.
+
+```{r}
+# Crear una copia del dataframe (sin NAs) para análisis de anomalías
+df_anomaly <- df_wo_na
+```
+
+Se utilizan 50 árboles para garantizar un equilibrio entre eficiencia de cómputo y capacidad de aislar correctamente anomalías.
+
+```{r}
+n <- 50
+
+# Inicializar el modelo Isolation Forest
+iso_forest <- isolationForest$new(
+  sample_size = nrow(df_anomaly), 
+  num_trees = n,                
+  seed = 123  # se asegura replicabilidad de resultados            
+)
+
+# Entrenar el modelo con el conjunto de datos preparado
+iso_forest$fit(df_anomaly)
+```
+
+Tras entrenar al modelo se obtiene una puntuación, cuanto más cercana a 1, más anómalos se consideran los valores. En este caso se define como anómalos al 5% de los registros con puntuaciones más altas en el 'anomaly_scores'.
+
+```{r}
+# Obtener las puntuaciones de anomalía para cada observación
+anomaly_scores <- iso_forest$predict(df_anomaly)
+
+# Añadir las puntuaciones al dataframe original
+df_anomaly$anomaly_score <- anomaly_scores$anomaly_score
+
+# Definir un umbral para clasificar anomalías
+threshold <- quantile(df_anomaly$anomaly_score, 0.95)
+paste0("Punto de corte para identificar dato anómalo ", threshold)
+```
+
+Visualización de la distribución de los valores según la puntuación de anomalía.
+
+```{r}
+ggplot(df_anomaly, aes(x = anomaly_score)) +
+  geom_histogram(bins = 50, fill = "steelblue", color = "black") +
+  labs(title = "Distribución de las Puntuaciones de Anomalía",
+       x = "Puntuación de Anomalía",
+       y = "Frecuencia") +
+  theme_minimal()
+```
+
+
+```{r}
+df_anomaly$is_anomaly <- ifelse(df_anomaly$anomaly_score > threshold, 1, 0)
+sum(df_anomaly$is_anomaly) # anomalías totales
+```
+
+Son en total 103 valores anómalos.
+
+
+```{r}
+# Se genera el resumen para observar la relación entre el diagnóstico y las anomalías
+tabla_anomalias <- df_anomaly %>%
+  group_by(Diagnosis, is_anomaly) %>%
+  count()
+
+formattable(tabla_anomalias)
+```
+
+Los valores anómalos se distribuyen con 71 para casos negativos (no existe enfermedad) y 32 para casos positivos.
+
+Por último, se excluyen los registros identificados como anomalías:
+
+
+```{r}
+df_wo_anomaly <- df_anomaly %>% filter(is_anomaly == 0)
+
+```
+
+# Balanceo de la muestra
+
+Se observa la proporción de los dos valores que conforman la variable dependiente.
+
+```{r}
+as.data.frame(table(df_anomaly$Diagnosis))
+```
+
+La variable dependiente ´Diagnosis´ tiene un desbalanceo moderado hacia los diagnósticos positivos. Pese a no ser un desbalanceo muy grande, se balancearña mediante la técnica de smote, dentro de la librería 'recipes'. Para ello se quita las columnas que creadas durante el resto del análisis para que no interfieran con el balanceo. 
+
+
+```{r}
+df_anomaly <- df_anomaly %>% select(-any_of(c('es_outlier_MoCA','es_outlier_FunctionalAssessment','is_anomaly', 'anomaly_score')))
+names(df_anomaly)
+
+set.seed(123)
+
+balanceo <- recipe(Diagnosis ~ ., data = df_anomaly) %>%
+  # Convertimos todos los factores en números variable dummy para que lo pueda usar el algoritmo
+  # excepto la variable respuesta (Diagnosis)
+  step_dummy(all_nominal_predictors()) %>% 
+  # Ahora que todo es numérico, SMOTE ya puede trabajar
+  step_smote(Diagnosis, over_ratio = 1, neighbors = 5) 
+
+# Preparamos y aplicamos el balanceo
+df_equilibrio <- balanceo %>%
+  prep() %>%
+  bake(new_data = NULL)
+
+
+table(df_equilibrio$Diagnosis)
+```
+
+Esta técnica da lugar a una muestra mucho más balanceada
