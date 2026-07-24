@@ -1,0 +1,755 @@
+---
+title: |
+ <b><div style="text-align: center"> Análisis multivariante II evaluación </div></b>
+author:  
+  name: Miguel Cabestrero
+date: julio 2026
+output: 
+  rmdformats::readthedown:
+    code_folding: hide
+  
+css: customRHG_UNED.css
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  fig.align = 'center',
+  fig.width = 12,  # Esto actúa como un valor base
+  fig.height = 5,  # También un valor base
+  out.width = '100%',  # Asegura que el ancho se ajuste
+  out.height = '80%',   # Ajusta el alto al 80%
+  warning = FALSE, # Se desactivan los avisos
+  message = FALSE, # Se desactivan los mensajes
+  echo = TRUE      # Se mantiene el código visible (cambiar a FALSE si no se desea mostrar)
+)
+```
+
+# Paquetes y opciones
+
+Se cargan los paquetes utilizados.
+
+```{r}
+# Función para cargar los paquetes y previamente instalar los no existentes
+enable_packages <- function(x){ 
+  for( i in x ){ 
+    if( ! require( i , character.only = TRUE ) ){ 
+      install.packages( i , dependencies = TRUE ) 
+      require( i , character.only = TRUE ) 
+    } 
+  } 
+}
+
+# Paquetes
+
+enable_packages(c('data.table', 'dplyr', 'tidyverse', 'reactable', 'readxl', 'corrplot', 'gridExtra', 'skimr', 'psych', 'plm', 'MASS', 'ggplot2', 'ggrepel', 'ggpubr', 'CCA', 'factoextra', 'RGCCA', 'ca', 'readxl', 'MultBiplotR', 'readxl', 'tinytex', 'car'))
+
+# Se quita la notación científica
+options(scipen = 999)
+
+# Semilla aleatoria para mostrar muestras de los datos
+set.seed(123)
+
+```
+
+# Ejercicio 1: Análisis discriminante
+
+Se dispone de información acerca de 16 clientes a los que se les concedió un préstamo instantáneo por un importe de 12.000 euros cada uno. Una vez transcurridos tres años desde la concesión de los préstamos, 8 clientes fueron clasificados como fallidos, mientras que los otros 8 son cumplidores, ya que reintegraron el préstamo.
+
+Para cada uno de los clientes se dispone de información sobre su patrimonio neto y sus deudas pendientes correspondientes al momento de la solicitud. Con la información sobre las variables de patrimonio neto y deudas pendientes se desea construir una función discriminante que clasifique con los menores errores posibles a los clientes en dos grupos: fallidos y no fallidos.
+```{r}
+Patrimonio <- c(1.3, 3.7, 5, 5.9, 7.1, 4, 7.9, 5.1, 5.2, 9.8, 9, 12, 6.3, 8.7, 11.1, 9.9)
+Deuda      <- c(4.1, 6.9, 3, 6.5, 5.4, 2.7, 7.6, 3.8, 1, 4.2, 4.8, 2, 5.2, 1.1, 4.1, 1.6)
+Grupo      <- c(1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0)
+```
+
+Se pide formular la función discriminante y tomar la decisión acerca de dos nuevas solicitudes de un préstamo instantáneo. El primer solicitante dispone de un patrimonio neto de 10,1, con unas deudas pendientes de 6,8. Para el segundo solicitante, los valores de estas variables son 9,7 y 2,2, respectivamente.
+
+Se comienza transformando los datos en un data frame y la variable dependiente (grupo) en factor.
+
+```{r}
+prestamo <- data.frame(
+  patrimonio = c(1.3, 3.7, 5, 5.9, 7.1, 4, 7.9, 5.1, 5.2, 9.8, 9, 12, 6.3, 8.7, 11.1, 9.9),
+  deuda      = c(4.1, 6.9, 3, 6.5, 5.4, 2.7, 7.6, 3.8, 1, 4.2, 4.8, 2, 5.2, 1.1, 4.1, 1.6),
+  grupo      = factor(c(1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0))
+)
+
+skim(prestamo)
+```
+
+Todas las variables predictoras son numéricas, por lo que se puede realizar el análisis discriminante.
+
+```{r}
+devolucion = lda(grupo ~ patrimonio + deuda, data=prestamo)
+print(devolucion)
+```
+
+Se comprueba la precisión del análisis.
+```{r}
+probs = predict(devolucion, newdata=prestamo, type="prob")
+data.frame(probs)
+```
+
+```{r}
+table(probs$class,prestamo$grupo)
+mean(probs$class==prestamo$grupo) # Porcentaje de bien clasificados
+```
+
+El modelo clasifica correctamente un 93.75% de las observaciones de la muestra.
+
+A continuación, se realiza una predicción para los dos solicitantes con el objetivo de clasificarles.
+
+Primero se crea un nuevo data frame con los dos solictantes.
+```{r}
+nuevas_solicitudes <- data.frame(
+  patrimonio = c(10.1, 9.7),
+  deuda      = c(6.8, 2.2)
+)
+```
+
+```{r}
+predicciones_nuevas <- predict(devolucion, newdata=nuevas_solicitudes, type = 'prob')
+
+# Se estructuran los resultados para facilitar su lectura y análisis.
+resultados_nuevos <- data.frame(
+  Solicitante    = c('Solicitante 1', 'Solicitante 2'),
+  Patrimonio     = nuevas_solicitudes$patrimonio,
+  Deuda          = nuevas_solicitudes$deuda,
+  Clase_Asignada = predicciones_nuevas$class,
+  Prob_Cumplidor = predicciones_nuevas$posterior,
+  Prob_Fallido   = predicciones_nuevas$posterior
+)
+
+print(resultados_nuevos)
+```
+
+El modelo predice que ambos solicitantes devolverán el préstamo. Sin embargo, el solictante uno tiene unas probabilidades menores (64%) que el solicitante dos (98%). Es un resultado lógico atendiendo a la relación de patrimonio respecto a la deuda, que es mucho mayor para el solicitante 2.
+
+# Ejercicio 2: Análisis factorial
+
+Se raliza un análisis factorial basado en los datos de un Excel que recoge información sobre la atención hospitalaria. Se comienza cargando los datos.
+
+```{r}
+datos_hospital <- read_excel('datos_atencion_hospitalaria.xlsx', sheet = 'Hoja1')
+
+# Se muestra el inicio de los datos importados
+head(datos_hospital)
+skim(datos_hospital)
+```
+
+Se seleccionan las variables objeto del análisis, las cuales son todas numéricas. También se modifica el nombre para facilitar la interpretación.
+```{r}
+datos_fa <- datos_hospital %>% dplyr::select(
+  estado_habitaciones = P1,
+  comida = P2,
+  atencion_no_san = P3,
+  atencion_auxi = P4,
+  atencion_enferm = P5,
+  atencion_med = P6,
+  info_recibida = P7
+)
+```
+
+Se continua con las prueba de Barlett y el test KMO para determinar si es adecuado realizar el análisis factorial.
+```{r}
+print(cortest.bartlett(datos_fa))
+```
+
+```{r}
+print(KMO(datos_fa))
+```
+
+Aunque se rechaza la  hipótesis nula de no correlación al obtener un p-valor muy bajo en el test de Barlett, el test KMO sugiere que la intensidad de la correlación es débil (0.58). 
+
+Se complementa estos hallazgos con un análisis gráfico de la matriz de correlaciones.
+
+```{r}
+matriz_cor <- cor(datos_fa, use = 'complete.obs')
+par(mar = c(1, 1, 1, 1))
+
+corrplot(matriz_cor, 
+         method = 'color', 
+         type = 'upper', 
+         number.cex = 1, 
+         addCoef.col = 'black',
+         tl.cex = 1, 
+         tl.col = 'black',
+         tl.srt = 45, 
+         diag = FALSE,
+         mar = c(0, 0, 2, 0))
+
+```
+
+Existen correlaciones muy fuertes entre varias variables. Otras sin embargo, apenas tiene relación.
+
+Se procedes a calcular los autovalores para decidir el número de factores con los que se trabajará.
+```{r}
+ev <- eigen(cor(datos_fa)) 
+ev$values
+```
+
+Atendiendo a los autovalores se decide continuar con 3 factores ya que estos son mayores que 1.
+
+Se utiliza fa para el análisis factorial junto con la rotación promax, ya que a diferencia de la varimax, realiza rotaciones oblicuas que permiten una mejor representación de relaciones entre fenómenos.
+
+```{r}
+valoraciones_fa <- fa(r = datos_fa, nfactors = 3,, fm ='gls', rotate ='promax', scores=TRUE)
+```
+
+Los tres factores elegidos explican el 87% de la varianza total, siendo además el factor 2 y 3 similares respecto a la proporción de varianza explicada.
+
+Como se pide en el enunicado, se presenta una tabla con la comunalidad y especificidad de cada variable.
+
+```{r}
+comunalidades <- valoraciones_fa$communality
+especificidades <- valoraciones_fa$uniquenesses
+
+tabla_varianzas <- data.frame(
+  Variable      = names(comunalidades),
+  Comunalidad_h2 = round(comunalidades, 4),
+  Especificidad_u2 = round(especificidades, 4)
+)
+
+print(tabla_varianzas, row.names = FALSE)
+```
+
+```{r}
+print(valoraciones_fa)
+```
+
+La interpretación de los factores obtenidos es la siguiente:
+
+* **Factor 1**: representa la atención recibida por el personal a excepción de los médicos. Altas puntuaciones en este factor significan que la atención recibida se percibió como buena.
+
+* **Factor 2**: representa la atención recibida exclusivamente por los médicos, junto con la información facilitada. Altas puntuaciones en este factor se relacionan con una buena atención y con una percepción de que la información facilitada por los médicos fue clara y suficiente.
+
+* **Factor 3**: representa las instalaciones y servicios del hospital. Altas puntuaciones en este factor significan que la comida y el estado de las habitaciones se percibió como bueno.
+
+Respecto a las variables incluidas en el modelo, se captura la mayoría de sus varianzas. En variables como la atención no sanitaria y la atención auxiliar, el modelo captura el 93% y el 92% respectvamente de su varianza. El estado de las habitaciones es la variable con menor varianza capturada (78%), aunque sigue siendo muy alta.
+
+Atendiendo a la Complejidad de Hofmann, todos los valores son muy cercanos a 1, por lo que las variables se asocian casi por completo a un único factor.
+```{r}
+# Se extraen los scores
+scores <- valoraciones_fa$scores
+```
+
+Se grafica la relación entre los factores mediante un biplot.
+
+```{r}
+# Se extraen los scores (observaciones) y las cargas (variables)
+df_scores <- as.data.frame(valoraciones_fa$scores[, c(1, 2)])
+names(df_scores) <- c('Factor1', 'Factor2')
+df_scores$id <- rownames(df_scores) # Se guarda el identificador de los puntos
+
+df_loadings <- as.data.frame(as.matrix(valoraciones_fa$loadings[, c(1, 2)]))
+names(df_loadings) <- c('Factor1', 'Factor2')
+df_loadings$variable <- rownames(df_loadings)
+
+# Se define un factor de escala para que las flechas visualmente coincidan con los puntos
+escala <- max(abs(df_scores[, 1:2])) / max(abs(df_loadings[, 1:2])) * 0.7
+df_loadings$Factor1_scaled <- df_loadings$Factor1 * escala
+df_loadings$Factor2_scaled <- df_loadings$Factor2 * escala
+
+ggplot() +
+  # Capa de observaciones (puntos e identificadores con repel)
+  geom_point(data = df_scores, aes(x = Factor1, y = Factor2), color = 'darkgray', alpha = 0.5) +
+  geom_text_repel(
+    data = df_scores, 
+    aes(x = Factor1, y = Factor2, label = id),
+    color = 'darkgray',
+    size = 2.8,
+    max.overlaps = Inf,
+    box.padding = 0.3,
+    point.padding = 0.2,
+    segment.color = 'grey50',
+    segment.size = 0.2
+  ) +
+  # Capa de variables (flechas y etiquetas con repel)
+  geom_segment(
+    data = df_loadings, 
+    aes(x = 0, y = 0, xend = Factor1_scaled, yend = Factor2_scaled),
+    arrow = arrow(length = unit(0.2, 'cm')), 
+    color = 'red'
+  ) +
+  geom_text_repel(
+    data = df_loadings, 
+    aes(x = Factor1_scaled, y = Factor2_scaled, label = variable),
+    color = 'red',
+    fontface = 'bold',
+    max.overlaps = Inf
+  ) +
+  # Estética y títulos
+  labs(title = 'Factor 1 vs Factor 2', x = 'Factor 1', y = 'Factor 2') +
+  theme_minimal()
+
+
+# Se extraen los scores de las columnas 1 y 3
+df_scores_13 <- as.data.frame(valoraciones_fa$scores[, c(1, 3)])
+names(df_scores_13) <- c('Factor1', 'Factor3')
+df_scores_13$id <- rownames(df_scores_13)
+
+# Se extraen las cargas (loadings) de las columnas 1 y 3
+df_loadings_13 <- as.data.frame(as.matrix(valoraciones_fa$loadings[, c(1, 3)]))
+names(df_loadings_13) <- c('Factor1', 'Factor3')
+df_loadings_13$variable <- rownames(df_loadings_13)
+
+# Se calcula el factor de escala para las flechas
+escala_13 <- max(abs(df_scores_13[, 1:2])) / max(abs(df_loadings_13[, 1:2])) * 0.7
+df_loadings_13$Factor1_scaled <- df_loadings_13$Factor1 * escala_13
+df_loadings_13$Factor3_scaled <- df_loadings_13$Factor3 * escala_13
+
+# Creación del gráfico 1 vs 3
+ggplot() +
+  geom_point(data = df_scores_13, aes(x = Factor1, y = Factor3), color = 'darkgray', alpha = 0.5) +
+  geom_text_repel(
+    data = df_scores_13, 
+    aes(x = Factor1, y = Factor3, label = id),
+    color = 'darkgray', size = 2.8, max.overlaps = Inf,
+    box.padding = 0.3, point.padding = 0.2, segment.color = 'grey50', segment.size = 0.2
+  ) +
+  geom_segment(
+    data = df_loadings_13, 
+    aes(x = 0, y = 0, xend = Factor1_scaled, yend = Factor3_scaled),
+    arrow = arrow(length = unit(0.2, 'cm')), color = 'red'
+  ) +
+  geom_text_repel(
+    data = df_loadings_13, 
+    aes(x = Factor1_scaled, y = Factor3_scaled, label = variable),
+    color = 'red', fontface = 'bold', max.overlaps = Inf
+  ) +
+  labs(title = 'Factor 1 vs Factor 3', x = 'Factor 1', y = 'Factor 3') +
+  theme_minimal()
+
+# --- Factor 2 vs Factor 3 ---
+
+# Se extraen los scores de las columnas 2 y 3
+df_scores_23 <- as.data.frame(valoraciones_fa$scores[, c(2, 3)])
+names(df_scores_23) <- c('Factor2', 'Factor3')
+df_scores_23$id <- rownames(df_scores_23)
+
+# Se extraen las cargas (loadings) de las columnas 2 y 3
+df_loadings_23 <- as.data.frame(as.matrix(valoraciones_fa$loadings[, c(2, 3)]))
+names(df_loadings_23) <- c('Factor2', 'Factor3')
+df_loadings_23$variable <- rownames(df_loadings_23)
+
+# Se calcula el factor de escala para las flechas
+escala_23 <- max(abs(df_scores_23[, 1:2])) / max(abs(df_loadings_23[, 1:2])) * 0.7
+df_loadings_23$Factor2_scaled <- df_loadings_23$Factor2 * escala_23
+df_loadings_23$Factor3_scaled <- df_loadings_23$Factor3 * escala_23
+
+# Creación del gráfico 2 vs 3
+ggplot() +
+  geom_point(data = df_scores_23, aes(x = Factor2, y = Factor3), color = 'darkgray', alpha = 0.5) +
+  geom_text_repel(
+    data = df_scores_23, 
+    aes(x = Factor2, y = Factor3, label = id),
+    color = 'darkgray', size = 2.8, max.overlaps = Inf,
+    box.padding = 0.3, point.padding = 0.2, segment.color = 'grey50', segment.size = 0.2
+  ) +
+  geom_segment(
+    data = df_loadings_23, 
+    aes(x = 0, y = 0, xend = Factor2_scaled, yend = Factor3_scaled),
+    arrow = arrow(length = unit(0.2, 'cm')), color = 'red'
+  ) +
+  geom_text_repel(
+    data = df_loadings_23, 
+    aes(x = Factor2_scaled, y = Factor3_scaled, label = variable),
+    color = 'red', fontface = 'bold', max.overlaps = Inf
+  ) +
+  labs(title = 'Factor 2 vs Factor 3', x = 'Factor 2', y = 'Factor 3') +
+  theme_minimal()
+```
+
+A partir de los gráficos biplot generados, se confirman de manera visual las conclusiones extraídas previamente en el análisis descriptivo. Se observa que las variables que componen cada factor presentan cargas altamente significativas y actúan en una misma dirección dentro de sus respectivas dimensiones.
+
+En cuanto a las relaciones interfactoriales, destaca una marcada independencia estructural. Las variables más relevantes de cada dimensión carecen de un efecto o proyección significativa sobre las demás, lo que demuestra que la gran mayoría de la variabilidad de cada indicador queda recogida de forma limpia en un único factor. La única excepción marginal se aprecia entre el Factor 1 y el Factor 3; las variables del bloque de infraestructura, 'comida' y 'estado_habitaciones', registran un peso secundario residual en el primer factor (con cargas de 0.19 y -0.17, respectivamente).
+
+Con las puntuaciones obtenidas para los factores, se comprueba si existen diferencias en las valoraciones entre sexos y entre el tipo de asistencia recibida.
+
+```{r}
+# Se extrae la varianza explicada de cada factor
+ss_loadings <- valoraciones_fa$Vaccounted['SS loadings', ]
+
+# Se calculan los pesos relativos de forma que sumen 1
+pesos <- ss_loadings / sum(ss_loadings)
+
+# Se muestran los pesos en consola para comprobar la importancia de cada factor
+print('--- Pesos de ponderación de cada factor ---')
+print(round(pesos, 4))
+
+# Se calcula la puntuación global ponderada mediante multiplicación matricial
+puntuacion_global_ponderada <- as.matrix(scores) %*% pesos
+
+# se integra la nueva variable en el dataset completo
+datos_completos <- cbind(datos_hospital, Puntuacion_Global = puntuacion_global_ponderada)
+```
+
+Una vez añadidias las scores ponderaradas para cada paciente, se procede al análisis descriptivo. 
+
+Pero antes se realiza una pequeña modificación en los nombres de las categorías de asistencia sanitaria para facilitar la interpretación.
+
+```{r}
+datos_completos <- datos_completos %>% 
+  mutate(D = case_when(
+    D == '1' ~ 'Medicina interna',
+    D == '2' ~ 'Traumatología',
+    D == '3' ~ 'Urología',
+    D == '4' ~ 'Oftalmología'
+  ))
+```
+
+```{r}
+descriptivos_sexo <- datos_completos %>% 
+  dplyr::group_by(S) %>% 
+  dplyr::summarise(
+    Casos        = n(),
+    Media        = round(mean(Puntuacion_Global, na.rm = TRUE), 4),
+    Desv_Tipica  = round(sd(Puntuacion_Global, na.rm = TRUE), 4),
+    Mediana      = round(median(Puntuacion_Global, na.rm = TRUE), 4),
+    Minimo       = round(min(Puntuacion_Global, na.rm = TRUE), 4),
+    Maximo       = round(max(Puntuacion_Global, na.rm = TRUE), 4)
+  )
+
+print('Resumen Descriptivo por Sexo')
+print(descriptivos_sexo)
+
+```
+
+Para poder realizar una comparación entre sexos y concluir si existen diferencias estadísticamente significativas, primero es necesario contrastar la igualdad de las varianzas. Con este fin, se lleva a cabo un test de Levene.
+
+```{r}
+test_levene_sexo <- leveneTest(Puntuacion_Global ~ factor(S), data = datos_completos)
+print('Test de Levene para Igualdad de Varianzas variable Sexo')
+print(test_levene_sexo)
+```
+
+El resutlado de la prueba (p-valor = 0.7202) indica que no se debe rechazar la hipótesis nula de homogeneidad de las varianzas. Al existir homogeneidad, se puede proseguir el comparativo mediante el contraste de t de Student.
+
+```{r}
+test_t_sexo <- t.test(Puntuacion_Global ~ factor(S), data = datos_completos, var.equal = TRUE)
+print('Prueba t para Comparación de Medias de la variable sexo')
+print(test_t_sexo)
+```
+
+Los resultados del test arrojan un p-valor de 0.2783, mucho mayor que 0.05. Esto indica que no existen diferencias estadísticamente significativas en la satisfacción entre hombres y mujeres.
+
+Se repite el procedimiento para la variable servicio hospitalario recibido.
+```{r}
+# Análisis estadístico descriptivo según el Tipo de Servicio Hospitalario
+# Se debe reemplazar 'servicio' por el nombre exacto de la columna en el dataset
+descriptivos_servicio <- datos_completos %>% 
+  dplyr::group_by(D) %>% 
+  dplyr::summarise(
+    Casos        = n(),
+    Media        = round(mean(Puntuacion_Global, na.rm = TRUE), 4),
+    Desv_Tipica  = round(sd(Puntuacion_Global, na.rm = TRUE), 4),
+    Mediana      = round(median(Puntuacion_Global, na.rm = TRUE), 4),
+    Minimo       = round(min(Puntuacion_Global, na.rm = TRUE), 4),
+    Maximo       = round(max(Puntuacion_Global, na.rm = TRUE), 4)
+  )
+
+print('--- Resumen Descriptivo por Tipo de Servicio ---')
+print(descriptivos_servicio)
+```
+
+```{r}
+test_levene_servicio <- leveneTest(Puntuacion_Global ~ factor(D), data = datos_completos)
+print('Test de Levene para Igualdad de Varianzas variable servicio')
+print(test_levene_servicio)
+```
+
+En esta ocasión, tampoco se rechaza la hipótesis nula de homogeneidad de las varianazas entre categorías, y se prosigue con un test ANOVA.
+```{r}
+anova_servicio <- aov(Puntuacion_Global ~ factor(D), data = datos_completos)
+print('Tabla ANOVA')
+print(summary(anova_servicio))
+```
+
+A raíz de los resultados del test ANOVA (p-valor menor de 0.05) se rechaza la hipótesis nula confirmando que la percepción del paciente varía en función de la especialidad.  asistencial recibida. Para poder ahondar en qué pares son los que presentan diferencias significativas, se aplica el test de Tukey.
+
+```{r}
+tukey_servicio <- TukeyHSD(anova_servicio)
+print('Test de Tukey HSD (Comparaciones por pares entre servicios)')
+print(tukey_servicio)
+```
+
+El test de Tukey señala que existen diferencias estadísticamente significativas en la satisfacción de los pacientes en tres comparaciones por pares, todas ellas relacionadas con el servicio de Urología:
+
+* Urología-Medicina interna
+* Urología-Oftalmología
+* Urología-Traumatología
+
+# Ejercicio 3: Escalamiento multidimensional
+
+El fichero socioecconomica.xlsx contiene información sobre la evolución del paro en la provincia de Cantabria desde el año 2005 hasta el primer trimestre de 2020.
+
+Seleccione las tasas de paro y evalúe la similitud en la evolución de las series a través de un escalamiento multidimensional no métrico.
+
+Se cargan los datos
+```{r}
+datos_socioeconomicos <- read_excel('datos_socioeconomica.xlsx')
+head(datos_socioeconomicos)
+```
+
+```{r}
+skim(datos_socioeconomicos) 
+```
+
+Para realizar el análisis se crea una nueva variable que auna el año y trimestre para utilizarla como etiqueta en el análisis gráfico. Sin embargo, se eliminan las variables temporales originales y las variables de datos absolutos para mantener la interpretabilidad de los datos. 
+
+```{r}
+datos_socioeconomicos <- datos_socioeconomicos %>%
+  unite(col = 'periodo', Ano, Trimestre, sep = '_')
+```
+
+```{r}
+head(datos_socioeconomicos)
+```
+
+```{r}
+datos_mds <- datos_socioeconomicos %>% 
+  dplyr::select( -'Parados Larga Duracion.16-67', -'Parados Larga Duracion.Jovenes')
+
+datos_numericos <- datos_mds %>% 
+  tibble::column_to_rownames(var = 'periodo')
+
+skim(datos_numericos)
+```
+
+Se realiza un análisis de la estrcutura de la relación entre variables mediante una matriz de correlación.
+```{r}
+matriz_corr <- cor(datos_numericos)
+
+corrplot(matriz_corr, method = 'circle', type = 'upper', 
+         tl.col = 'black', tl.srt = 45, addCoef.col = 'white',
+         number.cex = 0.8, main = 'Matriz de Correlación - Variables Económicas 1986')
+```
+
+Existe una gran correlación entre muchas de las variables, lo que indica la adecuación de este análisis.
+
+Se procede a crear el modelo.
+
+```{r}
+datos_numericos <- as.matrix(datos_numericos)
+
+d <- dist(datos_numericos, method = 'euclidean')
+
+mds_no_metrico <- isoMDS(d, k = 2)
+
+```
+
+```{r}
+# Se extraen los puntos
+df_mapa_nometrico <- as.data.frame(mds_no_metrico$points)
+colnames(df_mapa_nometrico) <- c('Dim1', 'Dim2')
+df_mapa_nometrico$periodo <- rownames(datos_numericos) # Se añaden los nombres de los estados
+
+
+# Se genera el gráfico con ggrepel
+p2 <- ggplot(df_mapa_nometrico, aes(x = Dim1, y = Dim2, label = periodo)) +
+  geom_point(color = 'steelblue', size = 2) +
+  #  geom_text_repel evita el solapamiento automáticamente
+  geom_text_repel(
+    size = 2.8,               
+    max.overlaps = Inf,          
+    box.padding = 0.3,           
+    point.padding = 0.2,         
+    segment.color = 'grey50',   
+    segment.size = 0.2          
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = 'bold', size = 14, hjust = 0.5),
+    panel.grid.minor = element_blank()
+  )
+p2
+```
+
+Cada dimensión tiene la siguiente interpretación:
+
+* Dimensión 1: representa la cifra de paro total de la comunidad cantabra. Los valores situados más a la izquierda respresntan períodos de tasa de paro, mientras que los puntos más hacia la derecha representan tasas de altas de paro.
+
+* Dimensión 2: respresenta la tasa de paro para jóvenes de entre 16 y 24 años según el sexo. Los puntos situados en el límite superior del plano son épocas donde el paro juvenil era porporcionalmente mayor en mujeres que en hombres, y por el contrario, puntos situados hacia abajo representan trimestres donde el paro juvenil de los hombres era mayor que el de mujeres.
+
+
+# Ejercicio 4: Correlación canónica
+
+La base de datos MASS::Cars93 contiene una selección aleatoria de 93 modelos de automóviles de pasajeros de 1993 que se enumeraron tanto en la edición de Consumer Reports como en la guía de compras de PACE. Las camionetas y los vehículos deportivos/utilitarios fueron eliminados debido a la información incompleta en la fuente de Consumer Reports. Los modelos duplicados (por ejemplo, Dodge Shadow y Plymouth Sundance) se enumeraron como máximo una vez.
+
+Plantee un análisis de correlación canónica entre las variables asociadas a las características físicas de los vehículos (tamaño de motor, caballos de fuerza, longitud, distancia entre ejes, anchura, asiento trasero y peso) y las relativas al precio y el funcionamiento (precio medio, consumo en ciudad, consumo en carretera y espacio de giro en U).
+
+Con esta información se cargan los datos.
+
+```{r}
+data('Cars93')
+
+datos_coches <- Cars93
+
+head(datos_coches)
+
+skim(datos_coches)
+```
+
+Entre las variables que formarán parte del análisis, el espacio en los asientos de atrás presenta 2 valores faltantes. Debido a su poco peso en el global de los datos (3%) se decide eliminar las filas.
+
+```{r}
+datos_coches <- na.omit(datos_coches)
+```
+
+Se seleccionan las variables que formarán parte del análisis canónico creando los dataset de las variables X y las variables Y.
+
+```{r}
+bloque_fisico <- datos_coches %>%
+  dplyr::select(
+    EngineSize,
+    Horsepower,
+    Length,
+    Wheelbase,
+    Width,
+    Rear.seat.room,
+    Weight
+  )
+  
+bloque_funcionamiento <- datos_coches %>%
+  dplyr::select(
+    Price,
+    MPG.city,
+    MPG.highway,
+    Turn.circle
+  )
+```
+
+Los datos se encuentran en diferentes escalas, por lo que se normalizan antes de introducirlos a la matriz.
+
+```{r}
+X <- as.matrix(scale(bloque_fisico))
+Y <- as.matrix(scale(bloque_funcionamiento))
+```
+
+Se analizan las correlaciones cruzadas.
+```{r}
+matriz_cruzar <- cor(X, Y)
+
+print(round(matriz_cruzar, 4))
+```
+
+Las variables seleccionadas presentan una alta correlación positiva en algunos casos y negativa en otros. Esto confirma la idoneidad del análisis.
+
+```{r}
+modelo_cca <- cancor(X, Y)
+
+# Extracción de las correlaciones canónicas
+correlaciones <- modelo_cca$cor
+names(correlaciones) <- paste0('Par_Canónico_', 1:length(correlaciones))
+
+print(round(correlaciones, 4))
+```
+
+Los resultados del análisis son los siguientes:
+
+* Primer par canónico (0.9371): Existe una correlación lineal extremadamente fuerte entre la primera combinación lineal de las características físicas y la primera combinación lineal de precio y funcionamiento. Este primer par captura la mayor parte de la variabilidad compartida entre ambos conjuntos de datos. Indica que el aspecto físico del vehículo está íntimamente ligado a su precio y eficiencia.
+
+* Segundo par canónico (0.6777): Representa una relación moderada-alta. Este par busca la máxima correlación posible bajo la condición de ser totalmente independiente (ortogonal) al primer par.
+
+* Tercer par canónico (0.4557): Muestra una relación moderada-baja.
+
+* Cuarto par canónico (0.1608): La relación es muy débil, lo que sugiere que este último par apenas aporta información relevante sobre la estructura conjunta de los datos.
+
+Se continua con el análisis de las cargas canónicas.
+
+```{r}
+# Multiplicación matricial para obtener las puntuaciones del primer par
+# Se selecciona únicamente la primera columna [, 1] de los coeficientes
+U1 <- X %*% modelo_cca$xcoef[, 1]  
+V1 <- Y %*% modelo_cca$ycoef[, 1]  
+
+
+```
+
+```{r}
+cargas_X <- cor(X, U1)
+colnames(cargas_X) <- 'Carga_U1'
+
+cargas_Y <- cor(Y, V1)
+colnames(cargas_Y) <- 'Carga_V1'
+
+# Se muestran los resultados para analizar qué variables pesan más
+print('--- Cargas del Bloque físcio ---')
+print(round(cargas_X, 4))
+print('--- Cargas del Bloque funcionamiento y precio ---')
+print(round(cargas_Y, 4))
+```
+
+Las variables del **bloque de características físicas** se encuentran bastante distribuidas respecto a su peso dentro del primer coeficiente canónico, presetando pesos muy grandes y todas con el mismo signo, por lo que se mueven en la misma dirección. La única excepción es el espacio en los asientos traseros, tratándose de la variable con menos relevancia. Valores altos en esta dimensión representan vehículos con motores pequeños y de menor tamaño y peso.
+ 
+En el **bloque de funcionamiento** todas las variables tienen un peso alto. Mientras que el consumo tiene signo positivo, el precio y ratio de giro tienen signo negativos. Esto indica que valores altos en esta dimensión se relacionan con vehículos más eficientes en consumo y con menor precio y mejor ratio de giro.
+
+Se procede a un análisis gráfico de ambos bloques respecto al par canónico con la máxima correlación lineal. 
+
+```{r}
+# Se organizan en un data frame para graficar cómodamente
+df_scores <- data.frame(U1 = U1, V1 = V1)
+
+ggplot(df_scores, aes(x = U1, y = V1)) +
+  geom_point(color = 'darkblue', alpha = 0.5, size = 1.5) +
+  geom_smooth(method = 'lm', color = 'red', linetype = 'dashed', se = FALSE) +
+  labs(
+    title = 'Primer Par de Variables Canónicas (1990)',
+    x = 'U1: Dimensión canónica física',
+    y = 'V1: Dimensión canónica funcionamiento y precio',
+    subtitle = paste0('Correlación canónica: ', round(modelo_cca$cor[1], 4))
+  ) +
+  theme_minimal() +
+  theme(plot.title = element_text(face = 'bold', hjust = 0.5))
+```
+
+El gráfico plasma visualmente la fortísima correlación matemática obtenida (0.9371). La dispersión de los puntos en una diagonal casi perfecta confirma que ambos bloques están estrechamente relacionados. 
+
+Atendiendo al análisis de cargas canónicas realizado previamente, se puede apreciar que para vehículos con motores pequeños, menor tamaño y peso que ese encuentran en la parte derecha del plano (dimensión de características físicas), presentan además una menor combinación de precio, consumos y radio de giro, ya que están en la parte superior del plano (dimensión de precio y fincionamiento). Se puede apreciar lo opuesto al otro extremo del plano; a medida que el tamaño del vehículo, peso y motor aumentan, también lo hacen los consumos, precio y radio de giro.
+
+Se contruye un mapa de variables para ver gráficamente las cargas de cada bloque.
+```{r}
+# Se calculan las correlaciones cruzadas (bloque X con V1, y bloque Y con U1)
+cruzadas_X_V1 <- cor(X, V1)
+cruzadas_Y_U1 <- cor(Y, U1)
+
+# Se construye el data frame unificando los vectores 
+mapa_variables <- data.frame(
+  Variable = c(rownames(cargas_X), rownames(cargas_Y)),
+  
+  # El Eje_X representa la correlación de todas las variables con la dimensión U1
+  Eje_X    = c(cargas_X[, 1], cruzadas_Y_U1[, 1]),
+  
+  # El Eje_Y representa la correlación de todas las variables con la dimensión V1
+  Eje_Y    = c(cruzadas_X_V1[, 1], cargas_Y[, 1]),
+  
+  # Se generan las etiquetas repitiendo el texto según el número exacto de variables de cada bloque
+  Bloque   = c(rep('Física', ncol(X)), rep('Funcionamiento-precio', ncol(Y)))
+)
+
+
+ggplot(mapa_variables, aes(x = Eje_X, y = Eje_Y, color = Bloque)) +
+  geom_segment(aes(xend = 0, yend = 0), arrow = arrow(length = unit(0.2, 'cm')), 
+               linewidth = 0.7, alpha = 0.7) +
+  geom_point(size = 3) +
+  geom_text_repel(aes(label = Variable), size = 3.5, fontface = 'bold', box.padding = 0.4) +
+  annotate('path',
+           x = cos(seq(0, 2 * pi, length.out = 100)),
+           y = sin(seq(0, 2 * pi, length.out = 100)),
+           lty = 'dashed', color = 'grey70') +
+  geom_hline(yintercept = 0, linetype = 'dotted') +
+  geom_vline(xintercept = 0, linetype = 'dotted') +
+  labs(
+    title = 'Mapa de Variables - Cargas Canónicas (1993)',
+    x = 'Correlación con la Dimensión Canónica Física (U1)',
+    y = 'Correlación con la Dimensión Canónica de Funcionamiento (V1)'
+  ) +
+  coord_fixed() +
+  theme_minimal() +
+  theme(plot.title = element_text(face = 'bold', hjust = 0.5))
+```
+
+Este último gráfico confirma e ilustra perfectamente las relaciones analizadas. El tamaño, el precio y el ratio de giro correlacionan en la misma dirección y con pesos similares. En el extremo opuesto y con un peso similar se encuentran las variables de eficiencia de consumo. Además, el espacio de las plazas traseras es la variable con menor peso.
+
